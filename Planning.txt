@@ -1,0 +1,59 @@
+PURPOSE
+
+We will make a Gnosia solver. This will essentially solve the video game "Gnosia" using
+a self-implemented Constraint Satisfaction Problem solver (CSP solver), and possibly
+a Bayesian network.
+
+Gnosia as a game:
+- has 8 roles: AC Follower, Bug, Crew Member, Doctor, Engineer, Gnosia, Guardian Angel, Guard Duty.
+- can have up to 15 members, flexibly.
+- each day, you have five rounds of discussion.
+- each night, zero~two people disappear.
+- the game ends either when: 
+    1 - there are equal number of Gnosias & humans, or
+    2 - all Gnosias are cold-sleeping.
+etc.
+
+-------------------------------------------------
+HOW WE ACCOMPLISH IT
+
+Model the CSP using:
+- A graph, where nodes are the individuals - with each having the 8 roles as domain
+- Edges are the constraints:
+    - cannot have more than the given number of Gnosias
+    - remaining Gnosia count cannot >= half the current number of members
+    - only have one or less of:
+        - engineer
+        - doctor
+        - guardian angel
+        - bug
+        - AC follower
+    - either have two or zero guard duties
+    - disappeared members cannot be Gnosias
+    - if there are no engineers, disappeared members cannot be bugs
+    - lying members are either Gnosias, a bug or an AC Follower
+    - if a member accuses another, the two cannot be in the same camp; that is,
+      they belong in two different groups from: 
+      > (Crew Member, Doctor, Engineer, Guardian Angel, Guard Duty)
+      > (AC Follower, Gnosia)
+      > (Bug) 
+- Every time we add new info, we rule out impossible domain values and perform arc consistency
+
+
+-------------------------------------------
+CODE WE WRITE
+
+Our solver algorithm:
+1 - Takes a graph.
+2 - Performs arc consistency to return:
+    - a solution they found or null
+    - the produced graph
+
+An algorithm which updates a graph based on additional information.
+> We could pass it a list of new observations, and the graph can update accordingly.
+> Equivalently, we could create a new graph every time.
+
+3 namespaces:
+- GraphImplementation: Implements the graph & edge functionalities.
+- CSPSolver: Implements the CSP representations and functionalities to solve them.
+- GnosiaSolver: Implements the functionality to solve Gnosia using the CSP Solver
