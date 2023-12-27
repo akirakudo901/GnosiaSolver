@@ -10,7 +10,8 @@
 #ifndef GRAPHIMPLEMENTATION_GRAPH_H
 #define GRAPHIMPLEMENTATION_GRAPH_H
 
-#include <list>
+#include <unordered_map>
+#include <vector>
 
 #include "src/graphImplementation/edges/Edge.h"
 #include "src/graphImplementation/vertices/Vertex.h"
@@ -23,26 +24,26 @@ namespace GraphImplementation
     private:
         //use adjacency list:
         // faster than adjacency matrix & edge list in checking adjacency 
-        //-> useful in adding "ToCheck" arcs for arc consistency
-        struct AdjacencyList
-        {
-            std::set<Vertex*> 
-            std::list<Vertex*> *allVertices;
-            std::
-            
-        };
-        // actual data holding adjList
-        AdjacencyList adjList;
+        //-> best in adding "ToCheck" arcs for arc consistency
+        
+        // we will implement this using unordered_map (hash map) of vertex pointers
+        // to their corresponding vector (I don't know what's the best best implementation)
+        // USING POINTERS, AS THIS IS THE ONLY SHARED PROPERTY FOR Vertex-TYPE OBJECTS
+        // AND UNIQUELY DETERMINES VERTICES AS WE CREATE THEM. I THINK WE CAN HAVE MULTIPLE 
+        // VERTICES WITH THE EXACT SAME ATTRIBUTES BUT DIFFERENT ADDRESSES.
+        std::unordered_map<Vertex*, std::vector<Vertex*>> *adjList;
         
     public:
         Graph();
         ~Graph();
 
-        // return if x and y are adjacent
+        // returns whether vertex x is in the graph
+        bool contains_vertex(Vertex *x);
+        // return if vertices x and y are adjacent
         bool adjacent(Vertex *x, Vertex *y);
-        // return all neighbors of x
-        std::list<Vertex*> neighbors(Vertex *x);
-        // adds vertex x to G
+        // return all neighbors of vertex x
+        std::vector<Vertex*> neighbors(Vertex *x);
+        // adds vertex x to the graph
         void add_vertex(Vertex *x);
         // removes vertex x if there
         void remove_vertex(Vertex *x);

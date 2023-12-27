@@ -1,3 +1,6 @@
-/.objs
+# ignore .objs holding .o files
+*.objs
+# ignore .vscode holding vscode settings
 /.vscode
-/main.exe
+# ignore compiled objects (like .exe)
+*.exe
