@@ -1,7 +1,10 @@
 CXX = g++
 CXXFLAGS = -Wall -g -I C:/Users/mashi/Desktop/VSCode/c++/GnosiaSolver
 
-EXE = main
+ALL_EXE = $(EXE)
+ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION)
+
+EXE  = main
 OBJS = main.o ConstraintVertex.o VariableVertex.o Vertex.o
 
 VERTEX_LOC = src/graphImplementation/vertices
@@ -9,10 +12,12 @@ VERTEX_LOC = src/graphImplementation/vertices
 OBJS_DIR = .objs
 
 # TESTS
-TESTFLAGS = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.a
 
-TEST_GRAPH = testGraph
-TEST_GRAPH_OBJS = testGraph.o
+# TEST GRAPH IMPLEMENTATION
+TEST_GRAPH_IMPLEMENTATION = testGraphImplementation
+TEST_GRAPH_IMPLEMENTATION_OBJS = testConstraintVertex.o testGraph.o testVariableVertex.o testVertex.o
+
+TEST_VERTEX_LOC = test/graphImplementation/vertices
 
 TEST_OBJS_DIR = test/.objs
 
@@ -20,20 +25,23 @@ TEST_OBJS_DIR = test/.objs
 
 #####################
 # .PHONY Targets
-.PHONY: all allTest clean exeClean testClean
+.PHONY: all allTest runTest clean exeClean testClean
 # all objects
-all: $(EXE)
+all: $(ALL_EXE)
 # all tests
-allTest: $(TEST_GRAPH)
+test: $(ALL_TEST)
+# run all tests
+runTest: 
+	@$(foreach file, $(ALL_TEST), ./$(file);)
+
 # clean all object files and execute files
-clean:
-	exeClean testClean
+clean: exeClean testClean
 # clean all object files & execute files around the project
 exeClean:
-	-@rm -rf $(OBJS_DIR)/*.o all
+	-@rm -rf $(OBJS_DIR)/*.o $(ALL_EXE)
 # clean all object files & execute files around testing
 testClean:
-	-@rm -rf $(TEST_OBJS_DIR)/*.o allTest
+	-@rm -rf $(TEST_OBJS_DIR)/*.o $(ALL_TEST)
 
 #####################
 # Creates all directories specified along the OBJS_DIR path
@@ -70,14 +78,24 @@ $(OBJS_DIR)/Vertex.o: $(VERTEX_LOC)/Vertex.cpp $(VERTEX_LOC)/Vertex.h | $(OBJS_D
 
 
 #####################
-# TEST_GRAPH
-$(TEST_GRAPH):
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(TESTFLAGS)
-# TEST_GRAPH dependencies
+# Test objects
+$(ALL_TEST):
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# TEST_GRAPH_IMPLEMENTATION dependencies
 # essentially every .o in TEST_OBJS_DIR, but now their path point inside TEST_OBJS_DIR
-$(TEST_GRAPH): $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(TEST_GRAPH_OBJS))
+$(TEST_GRAPH_IMPLEMENTATION): $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(TEST_GRAPH_IMPLEMENTATION_OBJS))
 
 #####################
-# .o files for testGraph.cpp
+# .o files for test .cpp files
 $(TEST_OBJS_DIR)/testGraph.o: test/graphImplementation/testGraph.cpp | $(TEST_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(TEST_OBJS_DIR)/testConstraintVertex.o: $(TEST_VERTEX_LOC)/testConstraintVertex.cpp | $(TEST_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(TEST_OBJS_DIR)/testVariableVertex.o: $(TEST_VERTEX_LOC)/testVariableVertex.cpp | $(TEST_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+$(TEST_OBJS_DIR)/testVertex.o: $(TEST_VERTEX_LOC)/testVertex.cpp | $(TEST_OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -o $@ -c $<

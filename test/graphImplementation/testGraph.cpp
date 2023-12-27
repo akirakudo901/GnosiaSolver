@@ -1,12 +1,22 @@
 // Author: Akira Kudo
 // Description: Implements tests for the Graph class in GraphImplementation.
 
-#define BOOST_TEST_MODULE Simple testcases
-#include <boost/test/unit_test.hpp>
+#define BOOST_TEST_MODULE Graph Implementation Testcases
+#include <boost/test/included/unit_test.hpp>
+namespace utf = boost::unit_test;
 
-BOOST_AUTO_TEST_CASE(simple_test) {
-    BOOST_CHECK_EQUAL(2+2, 4);
-}
+BOOST_AUTO_TEST_SUITE(Graph_test_suite);
+
+    BOOST_AUTO_TEST_CASE(simple_test, * utf::label("l1")) {
+        BOOST_CHECK_EQUAL(2+2, 4);
+    };
+
+    BOOST_AUTO_TEST_CASE(failing_test, * utf::label("l2")) {
+        BOOST_CHECK_EQUAL(2+2, 5);
+    };
+
+BOOST_AUTO_TEST_SUITE_END();
+
 
 // bool contains_vertex(Vertex *x);
 // // return if vertices x and y are adjacent
