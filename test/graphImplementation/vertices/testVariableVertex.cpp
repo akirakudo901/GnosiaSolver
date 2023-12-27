@@ -3,13 +3,18 @@
 //  Simple enough (almost a struct built on top of std functions)
 //  that we won't need actual tests.
 
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
 
-BOOST_AUTO_TEST_CASE(variableVertex_no_test) {
-    std::cout << "VariableVertex has currently no test as it is a simple class." << std::endl;
-}
+BOOST_AUTO_TEST_SUITE(VariableVertex_test_suite, * boost::unit_test::label("VariableVertex"));
+    
+    BOOST_AUTO_TEST_CASE(variableVertex_no_test) {
+        std::cout << "VariableVertex has currently no test as it is a simple class." << std::endl;
+    }
+
+BOOST_AUTO_TEST_SUITE_END();
 
 
 // BELOW IS CODE I USED TO SEE IF EVERYTHING CAME TOGETHER.

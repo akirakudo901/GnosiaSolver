@@ -2,16 +2,16 @@
 // Description: Implements tests for the Graph class in GraphImplementation.
 
 #define BOOST_TEST_MODULE Graph Implementation Testcases
-#include <boost/test/included/unit_test.hpp>
-namespace utf = boost::unit_test;
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(Graph_test_suite);
+BOOST_AUTO_TEST_SUITE(Graph_test_suite, * boost::unit_test::label("Graph"));
 
-    BOOST_AUTO_TEST_CASE(simple_test, * utf::label("l1")) {
+    BOOST_AUTO_TEST_CASE(simple_test) {
         BOOST_CHECK_EQUAL(2+2, 4);
     };
 
-    BOOST_AUTO_TEST_CASE(failing_test, * utf::label("l2")) {
+    BOOST_AUTO_TEST_CASE(failing_test) {
         BOOST_CHECK_EQUAL(2+2, 5);
     };
 

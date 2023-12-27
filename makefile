@@ -12,6 +12,7 @@ VERTEX_LOC = src/graphImplementation/vertices
 OBJS_DIR = .objs
 
 # TESTS
+TESTFLAGS = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.dll.a
 
 # TEST GRAPH IMPLEMENTATION
 TEST_GRAPH_IMPLEMENTATION = testGraphImplementation
@@ -80,7 +81,7 @@ $(OBJS_DIR)/Vertex.o: $(VERTEX_LOC)/Vertex.cpp $(VERTEX_LOC)/Vertex.h | $(OBJS_D
 #####################
 # Test objects
 $(ALL_TEST):
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(TESTFLAGS)
 
 # TEST_GRAPH_IMPLEMENTATION dependencies
 # essentially every .o in TEST_OBJS_DIR, but now their path point inside TEST_OBJS_DIR
