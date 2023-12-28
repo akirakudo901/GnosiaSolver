@@ -21,7 +21,7 @@ GraphImplementation::Graph::~Graph()
 // returns whether vertex x is in the graph
 bool GraphImplementation::Graph::contains_vertex(Vertex *x)
 {
-    return ((*adjList).find(x) == (*adjList).end());
+    return ((*adjList).find(x) != (*adjList).end());
 };
 
 // return if x and y are adjacent

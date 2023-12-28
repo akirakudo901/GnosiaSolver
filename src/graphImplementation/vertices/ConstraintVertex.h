@@ -13,7 +13,7 @@
 
 namespace GraphImplementation
 {
-    class ConstraintVertex : Vertex
+    class ConstraintVertex : public Vertex
     {
         private:
             std::function<bool(VariableVertex, std::initializer_list<VariableVertex>)> pred;

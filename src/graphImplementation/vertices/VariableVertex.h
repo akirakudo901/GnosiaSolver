@@ -12,7 +12,7 @@
 
 namespace GraphImplementation
 {
-    class VariableVertex : Vertex
+    class VariableVertex : public Vertex
     {
 
     private:

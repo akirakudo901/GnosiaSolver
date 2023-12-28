@@ -1,3 +1,12 @@
+VPATH = src/graphImplementation:\
+        src/graphImplementation/vertices:\
+		src/graphImplementation/edges:\
+	    test/graphImplementation:\
+		test/graphImplementation/edges:\
+		test/graphImplementation/vertices:\
+		$(OBJS_DIR):\
+		$(TEST_OBJS_DIR):
+
 CXX = g++
 CXXFLAGS = -Wall -g -I C:/Users/mashi/Desktop/VSCode/c++/GnosiaSolver
 
@@ -7,18 +16,18 @@ ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION)
 EXE  = main
 OBJS = main.o ConstraintVertex.o VariableVertex.o Vertex.o
 
-VERTEX_LOC = src/graphImplementation/vertices
-
 OBJS_DIR = .objs
 
 # TESTS
-TESTFLAGS = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.dll.a
+BOOST_PATH = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.dll.a
 
 # TEST GRAPH IMPLEMENTATION
 TEST_GRAPH_IMPLEMENTATION = testGraphImplementation
-TEST_GRAPH_IMPLEMENTATION_OBJS = testConstraintVertex.o testGraph.o testVariableVertex.o testVertex.o
+# essentially every .o in TEST_OBJS_DIR, but now their path point inside OBJS_DIR or TEST_OBJS_DIR
+T_GRAPH_IMPL_NON_TEST_OBJS = Graph.o VariableVertex.o Vertex.o ConstraintVertex.o
+T_GRAPH_IMPL_TEST_OBJS     = testConstraintVertex.o testGraph.o testVariableVertex.o testVertex.o
 
-TEST_VERTEX_LOC = test/graphImplementation/vertices
+TEST_GRAPH_IMPLEMENTATION_OBJS = $(T_GRAPH_IMPL_NON_TEST_OBJS) $(T_GRAPH_IMPL_TEST_OBJS)
 
 TEST_OBJS_DIR = test/.objs
 
@@ -26,7 +35,6 @@ TEST_OBJS_DIR = test/.objs
 
 #####################
 # .PHONY Targets
-.PHONY: all allTest runTest clean exeClean testClean
 # all objects
 all: $(ALL_EXE)
 # all tests
@@ -44,59 +52,55 @@ exeClean:
 testClean:
 	-@rm -rf $(TEST_OBJS_DIR)/*.o $(ALL_TEST)
 
-#####################
-# Creates all directories specified along the OBJS_DIR path
-$(OBJS_DIR):
-	@mkdir -p $(OBJS_DIR)
-# Same for test objects
-$(TEST_OBJS_DIR):
-	@mkdir -p $(TEST_OBJS_DIR)
+.PHONY: all allTest runTest clean exeClean testClean
 
+#####################
+# Creates directories specified along the OBJS_DIR or TEST_OBJS_DIR paths
+$(OBJS_DIR) $(TEST_OBJS_DIR):
+	@mkdir -p $@
 
 
 #####################
 # EXE
-$(EXE):
-	$(CXX) $(CXXFLAGS) -o $@ $^
-# EXE dependencies
-# essentially every .o in OBJS, but now their path point inside OBJS_DIR
-$(EXE): $(patsubst %.o, $(OBJS_DIR)/%.o, $(OBJS))
+$(EXE): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(patsubst %.o, $(OBJS_DIR)/%.o, $(patsubst $(OBJS_DIR)/%, %, $^))
 
-$(OBJS_DIR)/main.o: main.cpp $(VERTEX_LOC)/VariableVertex.h | $(OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+main.o: main.cpp VariableVertex.h | $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
 
 #####################
 # .o files for Vertices
-$(OBJS_DIR)/ConstraintVertex.o: $(VERTEX_LOC)/ConstraintVertex.cpp $(VERTEX_LOC)/ConstraintVertex.h $(VERTEX_LOC)/VariableVertex.h $(VERTEX_LOC)/Vertex.h | $(OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+ConstraintVertex.o: ConstraintVertex.cpp ConstraintVertex.h VariableVertex.h Vertex.h | $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
 
-$(OBJS_DIR)/VariableVertex.o: $(VERTEX_LOC)/VariableVertex.cpp $(VERTEX_LOC)/VariableVertex.h $(VERTEX_LOC)/Vertex.h | $(OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+VariableVertex.o: VariableVertex.cpp VariableVertex.h Vertex.h | $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
 
-$(OBJS_DIR)/Vertex.o: $(VERTEX_LOC)/Vertex.cpp $(VERTEX_LOC)/Vertex.h | $(OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+Vertex.o: Vertex.cpp Vertex.h | $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
+
+#####################
+# .o files for Graph
+Graph.o: Graph.cpp Graph.h Edge.h Vertex.h | $(OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
 
 
 
 #####################
 # Test objects
 $(ALL_TEST):
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(TESTFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ \
+    $(patsubst %.o, $(OBJS_DIR)/%.o,      $(filter-out test%, $(patsubst $(OBJS_DIR)/%,      %, $^))) \
+    $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(filter     test%, $(patsubst $(TEST_OBJS_DIR)/%, %, $^))) \
+    $(BOOST_PATH)
 
 # TEST_GRAPH_IMPLEMENTATION dependencies
-# essentially every .o in TEST_OBJS_DIR, but now their path point inside TEST_OBJS_DIR
-$(TEST_GRAPH_IMPLEMENTATION): $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(TEST_GRAPH_IMPLEMENTATION_OBJS))
+$(TEST_GRAPH_IMPLEMENTATION): $(TEST_GRAPH_IMPLEMENTATION_OBJS)
 
 #####################
 # .o files for test .cpp files
-$(TEST_OBJS_DIR)/testGraph.o: test/graphImplementation/testGraph.cpp | $(TEST_OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+testEdge.o testConstraintVertex.o testVariableVertex.o testVertex.o: %.o : %.cpp | $(TEST_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(TEST_OBJS_DIR)/$@ -c $<
 
-$(TEST_OBJS_DIR)/testConstraintVertex.o: $(TEST_VERTEX_LOC)/testConstraintVertex.cpp | $(TEST_OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-
-$(TEST_OBJS_DIR)/testVariableVertex.o: $(TEST_VERTEX_LOC)/testVariableVertex.cpp | $(TEST_OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-
-$(TEST_OBJS_DIR)/testVertex.o: $(TEST_VERTEX_LOC)/testVertex.cpp | $(TEST_OBJS_DIR)
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+testGraph.o: testGraph.cpp Graph.h ConstraintVertex.h VariableVertex.h Vertex.h | $(TEST_OBJS_DIR)
+	$(CXX) $(CXXFLAGS) -o $(TEST_OBJS_DIR)/$@ -c $<
