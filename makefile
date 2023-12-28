@@ -63,7 +63,7 @@ $(OBJS_DIR) $(TEST_OBJS_DIR):
 #####################
 # EXE
 $(EXE): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $(patsubst %.o, $(OBJS_DIR)/%.o, $(patsubst $(OBJS_DIR)/%, %, $^))
+	$(CXX) $(CXXFLAGS) -o $@ $(patsubst %.o, $(OBJS_DIR)/%.o, $(^F))
 
 main.o: main.cpp VariableVertex.h | $(OBJS_DIR)
 	$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$@ -c $<
@@ -90,8 +90,8 @@ Graph.o: Graph.cpp Graph.h Edge.h Vertex.h | $(OBJS_DIR)
 # Test objects
 $(ALL_TEST):
 	$(CXX) $(CXXFLAGS) -o $@ \
-    $(patsubst %.o, $(OBJS_DIR)/%.o,      $(filter-out test%, $(patsubst $(OBJS_DIR)/%,      %, $^))) \
-    $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(filter     test%, $(patsubst $(TEST_OBJS_DIR)/%, %, $^))) \
+    $(patsubst %.o, $(OBJS_DIR)/%.o,      $(filter-out test%, $(^F))) \
+    $(patsubst %.o, $(TEST_OBJS_DIR)/%.o, $(filter     test%, $(^F))) \
     $(BOOST_PATH)
 
 # TEST_GRAPH_IMPLEMENTATION dependencies
