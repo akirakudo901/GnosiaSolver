@@ -9,8 +9,9 @@ namespace GraphImplementation
 {
     class Edge 
     {
-        Edge() {};
-        ~Edge() {};
+        public:
+            Edge() {};
+            ~Edge() {};
     };  
 };
 
