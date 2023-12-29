@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // function returns whether vertex x is in the graph
     // bool contains_vertex(Vertex *x)
-    BOOST_AUTO_TEST_SUITE(test_contains_vertex);
+    BOOST_AUTO_TEST_SUITE(contains_vertex);
 
         BOOST_AUTO_TEST_CASE(pass_nullptr) {
             // check against nullptr
@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // returns if vertices x and y are adjacent
     // bool adjacent(Vertex *x, Vertex *y);
-    BOOST_AUTO_TEST_SUITE(test_adjacent);
+    BOOST_AUTO_TEST_SUITE(adjacent);
 
         BOOST_AUTO_TEST_CASE(pass_nullptr) {
             // also test against one or both being nullptrs
@@ -150,7 +150,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // return all neighbors of vertex x
     // std::vector<Vertex*> neighbors(Vertex *x);
-    BOOST_AUTO_TEST_SUITE(test_neighbors);
+    BOOST_AUTO_TEST_SUITE(neighbors);
 
         BOOST_AUTO_TEST_CASE(pass_normal) {
             // pre-setup: add vertices to graph
@@ -202,7 +202,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
     
     // adds vertex x to the graph
     // void add_vertex(Vertex *x);
-    BOOST_AUTO_TEST_SUITE(test_add_vertex);
+    BOOST_AUTO_TEST_SUITE(add_vertex);
 
         BOOST_AUTO_TEST_CASE(pass_normal) {
             // initial check: vertices aren't in the graph
@@ -262,7 +262,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // removes vertex x if there
     // void remove_vertex(Vertex *x);
-    BOOST_AUTO_TEST_SUITE(test_remove_vertex);
+    BOOST_AUTO_TEST_SUITE(remove_vertex);
 
         BOOST_AUTO_TEST_CASE(pass_normal) {
             // pre-setup: add vertices into the graph
@@ -333,7 +333,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // adds edge z from vertex x to y if not there
     // void add_edge(Vertex *x, Vertex *y, Edge z);
-    BOOST_AUTO_TEST_SUITE(test_add_edge);
+    BOOST_AUTO_TEST_SUITE(add_edge);
         
         BOOST_AUTO_TEST_CASE(pass_normal) {
             // pre-setup: add vertices to graph
@@ -434,7 +434,7 @@ BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph")
 
     // removes edge from x to y if there
     // void remove_edge(Vertex *x, Vertex *y); 
-    BOOST_AUTO_TEST_SUITE(test_remove_edge);
+    BOOST_AUTO_TEST_SUITE(remove_edge);
     
         BOOST_AUTO_TEST_CASE(pass_normal) {
             // pre-setup: add vertices and edges

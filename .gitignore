@@ -5,4 +5,4 @@
 # ignore compiled objects (like .exe)
 *.exe
 # ignore all makefiles generated for dependencies purpose using g++ -MM
-/include
+/dependencies

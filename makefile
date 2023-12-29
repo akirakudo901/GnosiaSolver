@@ -70,7 +70,7 @@ NON_TEST_SOURCES = main.cpp Graph.cpp ConstraintVertex.cpp VariableVertex.cpp Ve
 TEST_SOURCES = testConstraintVertex.cpp testEdge.cpp testGraph.cpp testVariableVertex.cpp testVertex.cpp
 
 # related to dependencies of makefile as obtained via -MM commands
-DEPENDENCY_MAKEFILE_DIR = include
+DEPENDENCY_MAKEFILE_DIR = dependencies
 
 .INCLUDE_DIRS += $(DEPENDENCY_MAKEFILE_DIR)
 
