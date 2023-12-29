@@ -10,12 +10,12 @@
 
 GraphImplementation::Graph::Graph()
 {
-    this->adjList = new std::unordered_map<Vertex*, std::vector<Vertex*>>();
+    this->adjList = std::unordered_map<Vertex*, std::vector<Vertex*>>();
 };
 
 GraphImplementation::Graph::~Graph()
 {
-    delete this->adjList;
+
 };
 
 // returns whether vertex x is in the graph
@@ -23,7 +23,7 @@ bool GraphImplementation::Graph::contains_vertex(Vertex *x)
 {
     // guard against nullptr
     if (x == nullptr) return false;
-    return ((*adjList).find(x) != (*adjList).end());
+    return (adjList.find(x) != adjList.end());
 };
 
 // return if x and y are adjacent
@@ -36,7 +36,7 @@ bool GraphImplementation::Graph::adjacent(Vertex *x, Vertex *y)
     // if x and y are the same, return false - we don't allow loops here
     if (x == y) return false;
     // otherwise
-    std::vector<Vertex*> xAdjList = (*adjList)[x];
+    std::vector<Vertex*> xAdjList = adjList[x];
     for (auto element : xAdjList)
     {
         if (element == y) return true;
@@ -51,7 +51,7 @@ std::vector<GraphImplementation::Vertex*> GraphImplementation::Graph::neighbors(
     if (x == nullptr || !contains_vertex(x))
         return std::vector<Vertex*>();
     else 
-        return (*adjList)[x];
+        return adjList[x];
 };
 
 // adds vertex x to G
@@ -59,7 +59,7 @@ void GraphImplementation::Graph::add_vertex(Vertex *x)
 {
     // if x is a nullptr or is contained in graph, skip
     if (x == nullptr || contains_vertex(x)) return;
-    (*adjList)[x] = std::vector<Vertex*>();
+    adjList[x] = std::vector<Vertex*>();
 };
 
 // removes vertex x if there
@@ -68,11 +68,11 @@ void GraphImplementation::Graph::remove_vertex(Vertex *x)
     // if x is a nullptr or isn't contained in this graph, skip
     if (x == nullptr || !contains_vertex(x)) return;
     // otherwise get the adjacency list of x
-    std::vector<Vertex*> xAdjList = (*adjList)[x];
+    std::vector<Vertex*> xAdjList = adjList[x];
     // remove corresponding edges from the other vertex' adjacency list
     for (Vertex* adjVrtx : xAdjList) remove_edge(x, adjVrtx);
     // remove entry of x from adjList
-    (*adjList).erase(x);
+    adjList.erase(x);
 };
 
 // adds edge z from vertex x to y if not there
@@ -87,8 +87,8 @@ void GraphImplementation::Graph::add_edge(Vertex *x, Vertex *y, Edge z)
     // if the edge is already there, skip
     if (adjacent(x, y)) return;
     // otherwise, add the edge. Currenctly, we won't use the argument z
-    (*adjList)[x].push_back(y);
-    (*adjList)[y].push_back(x);
+    adjList[x].push_back(y);
+    adjList[y].push_back(x);
 };
 
 // removes edge from x to y if there
@@ -109,7 +109,7 @@ void GraphImplementation::Graph::remove_edge(Vertex *x, Vertex *y)
     // if x and y are the same vertex, skip
     if (x == y) return;
     // otherwise get the adjacency list of x and remove the corresponding edge
-    findAndRemoveEntryFromAdjacencyList(&(*adjList)[x], y);
+    findAndRemoveEntryFromAdjacencyList(&adjList[x], y);
     // DO THE EXACT SAME FOR y
-    findAndRemoveEntryFromAdjacencyList(&(*adjList)[y], x);
+    findAndRemoveEntryFromAdjacencyList(&adjList[y], x);
 };

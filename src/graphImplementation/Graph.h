@@ -31,7 +31,7 @@ namespace GraphImplementation
         // USING POINTERS, AS THIS IS THE ONLY SHARED PROPERTY FOR Vertex-TYPE OBJECTS
         // AND UNIQUELY DETERMINES VERTICES AS WE CREATE THEM. I THINK WE CAN HAVE MULTIPLE 
         // VERTICES WITH THE EXACT SAME ATTRIBUTES BUT DIFFERENT ADDRESSES.
-        std::unordered_map<Vertex*, std::vector<Vertex*>> *adjList;
+        std::unordered_map<Vertex*, std::vector<Vertex*>> adjList;
         
     public:
         Graph();
