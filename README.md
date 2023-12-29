@@ -8,7 +8,7 @@ This project is my **first try** creating a simple functional program with ***C+
 
 * It implements a **Constraint Satisfaction Problem Solver** using the **Arc Consistency #3 algorithm**.
 
-    (Was taught "Arc consistency" which seems to match AC-3 descrisiption from [Wikipedia](https://en.wikipedia.org/wiki/AC-3_algorithm).
+    (Was taught "Arc consistency" which seems to match AC-3 description from [Wikipedia](https://en.wikipedia.org/wiki/AC-3_algorithm).
 
 * This is applied to the visual novel RPG [**"GNOSIA"**](https://www.gnosia-game.com/), a **werewolf-style social deduction game**, to obtain solutions.
 
