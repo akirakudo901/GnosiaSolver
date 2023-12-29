@@ -1,5 +1,6 @@
 #include <initializer_list>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <set>
 
@@ -40,11 +41,11 @@ int main()
     
     set<int> initDomain {0, 1, 2, 3, 4, 5, 6, 7};
 
-    GraphImplementation::VariableVertex *vv = new GraphImplementation::VariableVertex(name, initDomain);
+    auto vv = std::make_unique<GraphImplementation::VariableVertex>(name, initDomain);
 
     std::cout << "Name is: " << vv->getName() << "!" << std::endl;
 
-    GraphImplementation::ConstraintVertex *cv = new GraphImplementation::ConstraintVertex(
+    auto cv = std::make_unique<GraphImplementation::ConstraintVertex>(
         [] (GraphImplementation::VariableVertex mainVar, 
             std::initializer_list<GraphImplementation::VariableVertex> varList)
         {
@@ -53,14 +54,9 @@ int main()
         }
     );
 
-    GraphImplementation::VariableVertex *vv2 = new GraphImplementation::VariableVertex(name, initDomain);
-    GraphImplementation::VariableVertex *vv3 = new GraphImplementation::VariableVertex("otherNewVertex", initDomain);
+    auto vv2 = std::make_unique<GraphImplementation::VariableVertex>(name, initDomain);
+    auto vv3 = std::make_unique<GraphImplementation::VariableVertex>("otherNewVertex", initDomain);
 
     std::cout << "Constraint is met between vv and vv2: " << cv->constraintIsMet(*vv, {*vv2}) << " " << std::endl;
     std::cout << "Constraint is met between vv and vv3: " << cv->constraintIsMet(*vv, {*vv3}) << " ";
-    
-    delete vv;
-    delete vv2;
-    delete vv3;
-    delete cv;
 };
