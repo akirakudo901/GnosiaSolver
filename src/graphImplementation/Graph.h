@@ -27,10 +27,9 @@ namespace GraphImplementation
         //-> best in adding "ToCheck" arcs for arc consistency
         
         // we will implement this using unordered_map (hash map) of vertex pointers
-        // to their corresponding vector (I don't know what's the best best implementation)
-        // USING POINTERS, AS THIS IS THE ONLY SHARED PROPERTY FOR Vertex-TYPE OBJECTS
-        // AND UNIQUELY DETERMINES VERTICES AS WE CREATE THEM. I THINK WE CAN HAVE MULTIPLE 
-        // VERTICES WITH THE EXACT SAME ATTRIBUTES BUT DIFFERENT ADDRESSES.
+        // to their corresponding vector
+        // I want quick access to a "Vertex" object's registered neighbor nodes
+        // as uniquely determined by its memory address 
         std::unordered_map<Vertex*, std::vector<Vertex*>> adjList;
         
     public:
@@ -38,19 +37,19 @@ namespace GraphImplementation
         ~Graph();
 
         // returns whether vertex x is in the graph
-        bool contains_vertex(Vertex *x);
+        bool contains_vertex(Vertex& x);
         // return if vertices x and y are adjacent
-        bool adjacent(Vertex *x, Vertex *y);
+        bool adjacent(Vertex& x, Vertex& y);
         // return all neighbors of vertex x
-        std::vector<Vertex*> neighbors(Vertex *x);
+        std::vector<Vertex*> neighbors(Vertex& x);
         // adds vertex x to the graph
-        void add_vertex(Vertex *x);
-        // removes vertex x if there
-        void remove_vertex(Vertex *x);
+        void add_vertex(Vertex& x);
+        // removes vertex x if there, as well as edges connected to x
+        void remove_vertex(Vertex& x);
         // adds edge z from vertex x to y if not there
-        void add_edge(Vertex *x, Vertex *y, Edge z);
+        void add_edge(Vertex &x, Vertex &y, Edge z);
         // removes edge from x to y if there
-        void remove_edge(Vertex *x, Vertex *y);        
+        void remove_edge(Vertex &x, Vertex &y);        
     };
 }
 
