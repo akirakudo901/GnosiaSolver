@@ -26,7 +26,7 @@ struct F {
     VariableVertex vv2 = VariableVertex("", std::set<int>());
     VariableVertex vv3 = VariableVertex("", std::set<int>());
     ConstraintVertex cv1 = ConstraintVertex( 
-        [] (VariableVertex mainVar, std::initializer_list<VariableVertex> varList) { return false; }
+        [] (auto mainVal, auto varList) { return false; }
         );
     Graph g;
     Edge e;
@@ -39,11 +39,9 @@ struct F {
         vv1 = VariableVertex("vv1", initDomain);
         vv2 = VariableVertex("vv2", initDomain);
         vv3 = VariableVertex("vv3", initDomain);
-        cv1 = ConstraintVertex(
-            [] (VariableVertex mainVar, std::initializer_list<VariableVertex> varList) {
-                for (auto element : varList) if (element.getName() == mainVar.getName()) return true;
-                return false;
-            });
+        cv1 = ConstraintVertex( //cv1's constraint itself isn't part of the test
+            [] (int mainVar, std::initializer_list<VariableVertex> varList) { return false; }
+            );
         e = Edge();    
     };
     

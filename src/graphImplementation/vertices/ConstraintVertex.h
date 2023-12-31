@@ -16,13 +16,14 @@ namespace GraphImplementation
     class ConstraintVertex : public Vertex
     {
         private:
-            std::function<bool(VariableVertex, std::initializer_list<VariableVertex>)> pred;
+            std::function<bool(int, std::initializer_list<VariableVertex>)> pred;
 
         public:
-            ConstraintVertex(std::function<bool(VariableVertex, std::initializer_list<VariableVertex>)> pred);
+            ConstraintVertex(std::function<bool(int, std::initializer_list<VariableVertex>)> pred);
             ~ConstraintVertex();
-            // Checks whether the constraint is met for mainVar given varList.
-            bool constraintIsMet(VariableVertex mainVar, std::initializer_list<VariableVertex> varList);
+            // checks whether the constraint is met for mainVar given varList.
+            bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
+        
     };
 };
 
