@@ -18,10 +18,12 @@ vpath %.o $(OBJS_DIR)
 vpath %.d $(DEPENDENCY_MAKEFILE_DIR)
 
 # after vpath is searched, we search through VPATH
-VPATH = src/graphImplementation:\
+VPATH = src/cspSolver:\
+		src/graphImplementation:\
         src/graphImplementation/vertices:\
 		src/graphImplementation/edges:\
-	    test/graphImplementation:\
+		test/cspSolver:\
+		test/graphImplementation:\
 		test/graphImplementation/edges:\
 		test/graphImplementation/vertices:\
 		$(OBJS_DIR):\
@@ -37,42 +39,63 @@ LD = g++
 LDFLAGS = -Wall -g -I C:/Users/mashi/Desktop/VSCode/c++/GnosiaSolver
 
 #####################
+# Special directories and paths
+OBJS_DIR = .objs
+TEST_OBJS_DIR = test/.objs
+
+BOOST_PATH = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.dll.a
+# related to dependencies of makefile as obtained via -MM commands
+DEPENDENCY_MAKEFILE_DIR = dependencies
+
+.INCLUDE_DIRS += $(DEPENDENCY_MAKEFILE_DIR)
+
+
+#####################
 # all objects - this has to be the primary "make" command so put it here
 all: non-test test
+
+
+
+
+##########################
+#  LIKELY MODIFY BELOW   #
+##########################
+
 
 #####################
 # NON-TEST EXECUTABLES
 ALL_EXE = $(MAIN)
-ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION)
+ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION) $(TEST_CSPSOLVER_IMPLEMENTATION)
 
 MAIN      = main
 MAIN_OBJS = main.o ConstraintVertex.o VariableVertex.o Vertex.o
 
-OBJS_DIR = .objs
+
 
 # TESTS
-BOOST_PATH = C:/msys64/ucrt64/lib/libboost_unit_test_framework-mt.dll.a
-
 # TEST GRAPH IMPLEMENTATION
 TEST_GRAPH_IMPLEMENTATION = testGraphImplementation
-# essentially every .o in TEST_OBJS_DIR, but now their path point inside OBJS_DIR or TEST_OBJS_DIR
+# essentially relevant .o in TEST_OBJS_DIR, but now their path point inside OBJS_DIR or TEST_OBJS_DIR
 T_GRAPH_IMPL_NON_TEST_OBJS = Graph.o VariableVertex.o Vertex.o ConstraintVertex.o
 T_GRAPH_IMPL_TEST_OBJS     = testConstraintVertex.o testGraph.o testVariableVertex.o testVertex.o
 
 TEST_GRAPH_IMPLEMENTATION_OBJS = $(T_GRAPH_IMPL_NON_TEST_OBJS) $(T_GRAPH_IMPL_TEST_OBJS)
 
-TEST_OBJS_DIR = test/.objs
+# TEST CSP SOLVER IMPLEMENTATION
+TEST_CSPSOLVER_IMPLEMENTATION = testCSPSolverImplementation
+# essentially relevant .o in TEST_OBJS_DIR, but now their path point inside OBJS_DIR or TEST_OBJS_DIR
+T_CSPSOLVER_IMPL_NON_TEST_OBJS = CSPGraphCreator.o CSPSolver.o Graph.o VariableVertex.o Vertex.o
+T_CSPSOLVER_IMPL_TEST_OBJS     = testCSPGraphCreator.o testCSPSolver.o
+
+TEST_CSPSOLVER_IMPLEMENTATION_OBJS = $(T_CSPSOLVER_IMPL_NON_TEST_OBJS) $(T_CSPSOLVER_IMPL_TEST_OBJS)
+
+
 
 #####################
 # SOURCE FILES
 SOURCES = $(NON_TEST_SOURCES) $(TEST_SOURCES)
-NON_TEST_SOURCES = main.cpp Graph.cpp ConstraintVertex.cpp VariableVertex.cpp Vertex.cpp
-TEST_SOURCES = testConstraintVertex.cpp testEdge.cpp testGraph.cpp testVariableVertex.cpp testVertex.cpp
-
-# related to dependencies of makefile as obtained via -MM commands
-DEPENDENCY_MAKEFILE_DIR = dependencies
-
-.INCLUDE_DIRS += $(DEPENDENCY_MAKEFILE_DIR)
+NON_TEST_SOURCES = main.cpp Graph.cpp ConstraintVertex.cpp CSPGraphCreator.cpp CSPSolver.cpp VariableVertex.cpp Vertex.cpp 
+TEST_SOURCES = testConstraintVertex.cpp testCSPGraphCreator.cpp testCSPSolver.cpp testEdge.cpp testGraph.cpp testVariableVertex.cpp testVertex.cpp
 
 #####################
 # Non-test object dependencies
@@ -80,6 +103,7 @@ $(MAIN): $(MAIN_OBJS)
 
 # Test object dependencies
 $(TEST_GRAPH_IMPLEMENTATION): $(TEST_GRAPH_IMPLEMENTATION_OBJS)
+$(TEST_CSPSOLVER_IMPLEMENTATION): $(TEST_CSPSOLVER_IMPLEMENTATION_OBJS)
 
 #####################
 # .PHONY Targets
@@ -103,7 +127,16 @@ testClean:
 makeClean:
 	-@rm -rf $(DEPENDENCY_MAKEFILE_DIR)/*.d
 
-.PHONY: all allTest runTest clean exeClean testClean makeClean
+.PHONY: all non-test test runTest clean exeClean testClean makeClean
+
+
+
+
+
+
+##########################################
+#  NO NEED FOR ANY MODIFICATIONS BELOW   #
+##########################################
 
 #####################
 # Creates directories specified along the given paths
