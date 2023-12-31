@@ -39,24 +39,35 @@ int main()
 {
     string name = "newVertex";
     
-    set<int> initDomain {0, 1, 2, 3, 4, 5, 6, 7};
+    set<int> initDomain {0, 10};
 
     auto vv = std::make_unique<GraphImplementation::VariableVertex>(name, initDomain);
 
     std::cout << "Name is: " << vv->getName() << "!" << std::endl;
 
     auto cv = std::make_unique<GraphImplementation::ConstraintVertex>(
-        [] (GraphImplementation::VariableVertex mainVar, 
-            std::initializer_list<GraphImplementation::VariableVertex> varList)
+        [] (int mainVal, std::initializer_list<GraphImplementation::VariableVertex> varList)
         {
-            for (auto element : varList) if (element.getName() == mainVar.getName()) return true;
+            for (auto variable : varList) {
+                auto vDomain = variable.getDomain();
+                if (vDomain.find(mainVal) != vDomain.end()) return true;
+            }
             return false;
         }
     );
 
-    auto vv2 = std::make_unique<GraphImplementation::VariableVertex>(name, initDomain);
-    auto vv3 = std::make_unique<GraphImplementation::VariableVertex>("otherNewVertex", initDomain);
+    auto vv2 = std::make_unique<GraphImplementation::VariableVertex>(name, set<int>{0, 1, 2});
+    auto vv3 = std::make_unique<GraphImplementation::VariableVertex>("otherNewVertex", set<int>{0, 5, 6});
 
-    std::cout << "Constraint is met between vv and vv2: " << cv->constraintIsMet(*vv, {*vv2}) << " " << std::endl;
-    std::cout << "Constraint is met between vv and vv3: " << cv->constraintIsMet(*vv, {*vv3}) << " ";
+    for (int dVal : vv->getDomain()) {
+        bool constraintIsMet_vv2 = cv->constraintIsMet(dVal, {*vv2}); 
+        bool constraintIsMet_vv3 = cv->constraintIsMet(dVal, {*vv3});
+        std::cout << "Constraint is" 
+                  << ((constraintIsMet_vv2) ? "" : "n't") 
+                  <<" met for vv value " << dVal << " comparing against vv2!" << std::endl;  
+        std::cout << "Constraint is" 
+                  << ((constraintIsMet_vv3) ? "" : "n't") 
+                  <<" met for vv value " << dVal << " comparing against vv3!\n" << std::endl;
+    }
+    
 };

@@ -24,6 +24,14 @@ namespace GraphImplementation
             // checks whether the constraint is met for mainVar given varList.
             bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
         
+            // Example predicates that can be useful:
+            // checks if given domains allow the existence of n or less of the checkedDomain value
+            static std::function<bool(int, std::initializer_list<VariableVertex>)> lesserOrEqualToN(int checkedDomain, int n);
+            // checks if given domains allow the existence of n or more of the checkedDomain value
+            static std::function<bool(int, std::initializer_list<VariableVertex>)> greaterOrEqualToN(int checkedDomain, int n);
+            // checks if given domains allow the existence of exactly n of the checkedDomain value
+            static std::function<bool(int, std::initializer_list<VariableVertex>)> exactlyN(int checkedDomain, int n);
+        
     };
 };
 

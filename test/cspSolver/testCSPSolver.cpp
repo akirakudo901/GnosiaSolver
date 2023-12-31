@@ -25,14 +25,6 @@ struct F
 
 BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, F, * boost::unit_test::label("CSPSolver"));
 
-    // run a single step of arc consistency on given Graph and list of arcs arranged in given Frontier;
-    // using differing Frontiers might change the runtime & efficiency of the process
-    // template <typename Frontier>
-    // std::tuple<GraphImplementation::Graph, Frontier> singleArcConsistencyStep(GraphImplementation::Graph graph, Frontier frontier);
-    BOOST_AUTO_TEST_SUITE(singleArcConsistencyStep);
-
-    BOOST_AUTO_TEST_SUITE_END();
-
     // create a CSP graph for a given problem - using a CLI?
     // void createCspGraph();
     BOOST_AUTO_TEST_SUITE(createCspGraph);
@@ -52,8 +44,14 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, F, * boost::unit_test::label("CSP
     BOOST_AUTO_TEST_SUITE_END();
 
     // run arc consistency and return the answer
+    // by default, the frontier deals with unary constraints first, then in random order
     // std::vector<GraphImplementation::VariableVertex> arcConsistency(GraphImplementation::Graph);
     BOOST_AUTO_TEST_SUITE(arcConsistency);
+
+        // when frontier is 0 (solved): 1) no solution, 2) one solution, 3) many possible solutions
+        // frontier: 0, 1, 2 or more
+        // constraint: unary, binary, ternary and more
+        // variables: one, two or more
 
     BOOST_AUTO_TEST_SUITE_END();
 
