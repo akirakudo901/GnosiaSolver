@@ -31,10 +31,10 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
 
                 // <= 0 (cannot take the given value)
-                ConstraintVertex unary_cv0 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 0));
+                ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
                 // <= 1, 2 (can take the given value)
-                ConstraintVertex unary_cv1 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 1));
-                ConstraintVertex unary_cv2 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 2));
+                ConstraintVertex unary_cv1 = ConstraintVertex("unary_cv1", ConstraintVertex::lesserOrEqualToN(0, 1));
+                ConstraintVertex unary_cv2 = ConstraintVertex("unary_cv2", ConstraintVertex::lesserOrEqualToN(0, 2));
 
                 // test: check whether constraint is met given vv1
                 BOOST_TEST(unary_cv0.constraintIsMet(0, {}) == false); //can't be 0
@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv3 = VariableVertex("vv3", std::set<int>{0});
 
                 // <= 0 (none can take 0)
-                ConstraintVertex binary_cv0 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 0));
+                ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
                 // <= 1 (only one of the two variables can take 0)
-                ConstraintVertex binary_cv1 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 1));
+                ConstraintVertex binary_cv1 = ConstraintVertex("binary_cv1", ConstraintVertex::lesserOrEqualToN(0, 1));
                 // <= 2 (both of the two variables can take 0)
-                ConstraintVertex binary_cv2 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 2));
+                ConstraintVertex binary_cv2 = ConstraintVertex("binary_cv2", ConstraintVertex::lesserOrEqualToN(0, 2));
 
                 // test: check whether constraint is met given two variables
                 // with cv0 (no variable can take 0)
@@ -98,17 +98,17 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
 
                 // <= 0 (none can take 0)
-                ConstraintVertex quinary_cv0 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 0));
+                ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
                 // <= 1 (only one out of five variables can take 0)
-                ConstraintVertex quinary_cv1 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 1));
+                ConstraintVertex quinary_cv1 = ConstraintVertex("quinary_cv1", ConstraintVertex::lesserOrEqualToN(0, 1));
                 // <= 2 (two out of five variables can take 0)
-                ConstraintVertex quinary_cv2 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 2));
+                ConstraintVertex quinary_cv2 = ConstraintVertex("quinary_cv2", ConstraintVertex::lesserOrEqualToN(0, 2));
                 // <= 3 (three out of five variables can take 0)
-                ConstraintVertex quinary_cv3 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 3));
+                ConstraintVertex quinary_cv3 = ConstraintVertex("quinary_cv3", ConstraintVertex::lesserOrEqualToN(0, 3));
                 // <= 4 (four out of five variables can take 0)
-                ConstraintVertex quinary_cv4 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 4));
+                ConstraintVertex quinary_cv4 = ConstraintVertex("quinary_cv4", ConstraintVertex::lesserOrEqualToN(0, 4));
                 // <= 5 (five out of five variables can take 0)
-                ConstraintVertex quinary_cv5 = ConstraintVertex(ConstraintVertex::lesserOrEqualToN(0, 5));
+                ConstraintVertex quinary_cv5 = ConstraintVertex("quinary_cv5", ConstraintVertex::lesserOrEqualToN(0, 5));
 
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (no variable can take 0) & cv1 (no variable can take 0)
@@ -151,10 +151,10 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
 
                 // <= 0, 1 (can take 1 or more number of the given value)
-                ConstraintVertex unary_cv0 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 0));
-                ConstraintVertex unary_cv1 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 1));
+                ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
+                ConstraintVertex unary_cv1 = ConstraintVertex("unary_cv1", ConstraintVertex::greaterOrEqualToN(0, 1));
                 // <= 2 (have to have 2 or more of the given value, which is impossible)
-                ConstraintVertex unary_cv2 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 2));
+                ConstraintVertex unary_cv2 = ConstraintVertex("unary_cv2", ConstraintVertex::greaterOrEqualToN(0, 2));
 
                 // test: check whether constraint is met given vv1
                 BOOST_TEST(unary_cv0.constraintIsMet(0, {}) == true); //0 is ok
@@ -176,11 +176,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv3 = VariableVertex("vv3", std::set<int>{1});
 
                 // <= 0 (we can have no 0s)
-                ConstraintVertex binary_cv0 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 0));
+                ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
                 // <= 1 (at least one of the two variables has to be able to be 0)
-                ConstraintVertex binary_cv1 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 1));
+                ConstraintVertex binary_cv1 = ConstraintVertex("binary_cv1", ConstraintVertex::greaterOrEqualToN(0, 1));
                 // <= 2 (both of the two variables have to be able to take 0)
-                ConstraintVertex binary_cv2 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 2));
+                ConstraintVertex binary_cv2 = ConstraintVertex("binary_cv2", ConstraintVertex::greaterOrEqualToN(0, 2));
 
                 // test: check whether constraint is met given two variables
                 // with cv0 (we can have no 0s)
@@ -218,17 +218,17 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
 
                 // <= 0 (we don't need any 0)
-                ConstraintVertex quinary_cv0 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 0));
+                ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
                 // <= 1 (one out of five variables have to be able to take 0)
-                ConstraintVertex quinary_cv1 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 1));
+                ConstraintVertex quinary_cv1 = ConstraintVertex("quinary_cv1", ConstraintVertex::greaterOrEqualToN(0, 1));
                 // <= 2 (two out of five variables have to be able to take 0)
-                ConstraintVertex quinary_cv2 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 2));
+                ConstraintVertex quinary_cv2 = ConstraintVertex("quinary_cv2", ConstraintVertex::greaterOrEqualToN(0, 2));
                 // <= 3 (three out of five variables have to be able to take 0)
-                ConstraintVertex quinary_cv3 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 3));
+                ConstraintVertex quinary_cv3 = ConstraintVertex("quinary_cv3", ConstraintVertex::greaterOrEqualToN(0, 3));
                 // <= 4 (four out of five variables have to be able to take 0)
-                ConstraintVertex quinary_cv4 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 4));
+                ConstraintVertex quinary_cv4 = ConstraintVertex("quinary_cv4", ConstraintVertex::greaterOrEqualToN(0, 4));
                 // <= 5 (five out of five variables have to be able to take 0)
-                ConstraintVertex quinary_cv5 = ConstraintVertex(ConstraintVertex::greaterOrEqualToN(0, 5));
+                ConstraintVertex quinary_cv5 = ConstraintVertex("quinary_cv5", ConstraintVertex::greaterOrEqualToN(0, 5));
 
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (we don't need any 0) ~ cv3 (3 variables have to be able to take 0)
@@ -266,11 +266,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
 
                 // <= 0 (there has to be zero variables taking the value 0)
-                ConstraintVertex unary_cv0 = ConstraintVertex(ConstraintVertex::exactlyN(0, 0));
+                ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::exactlyN(0, 0));
                 // <= 1 (there has to be one variable taking the value 0)
-                ConstraintVertex unary_cv1 = ConstraintVertex(ConstraintVertex::exactlyN(0, 1));
+                ConstraintVertex unary_cv1 = ConstraintVertex("unary_cv1", ConstraintVertex::exactlyN(0, 1));
                 // <= 2 (there has to be two variables taking the value 0)
-                ConstraintVertex unary_cv2 = ConstraintVertex(ConstraintVertex::exactlyN(0, 2));
+                ConstraintVertex unary_cv2 = ConstraintVertex("unary_cv2", ConstraintVertex::exactlyN(0, 2));
 
                 // test: check whether constraint is met given vv1
                 BOOST_TEST(unary_cv0.constraintIsMet(0, {}) == false); //there cannot be a 0
@@ -292,11 +292,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv3 = VariableVertex("vv3", std::set<int>{1});
 
                 // <= 0 (we can have no 0s)
-                ConstraintVertex binary_cv0 = ConstraintVertex(ConstraintVertex::exactlyN(0, 0));
+                ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::exactlyN(0, 0));
                 // <= 1 (one of the two variables has to be able to be 0)
-                ConstraintVertex binary_cv1 = ConstraintVertex(ConstraintVertex::exactlyN(0, 1));
+                ConstraintVertex binary_cv1 = ConstraintVertex("binary_cv1", ConstraintVertex::exactlyN(0, 1));
                 // <= 2 (both of the two variables have to be able to be 0)
-                ConstraintVertex binary_cv2 = ConstraintVertex(ConstraintVertex::exactlyN(0, 2));
+                ConstraintVertex binary_cv2 = ConstraintVertex("binary_cv2", ConstraintVertex::exactlyN(0, 2));
 
                 // test: check whether constraint is met given two variables
                 // with cv0 (we can have no 0s)
@@ -334,17 +334,17 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
 
                 // <= 0 (we can't have any 0)
-                ConstraintVertex quinary_cv0 = ConstraintVertex(ConstraintVertex::exactlyN(0, 0));
+                ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::exactlyN(0, 0));
                 // <= 1 (exactly one variable has to be able to take 0)
-                ConstraintVertex quinary_cv1 = ConstraintVertex(ConstraintVertex::exactlyN(0, 1));
+                ConstraintVertex quinary_cv1 = ConstraintVertex("quinary_cv1", ConstraintVertex::exactlyN(0, 1));
                 // <= 2 (exactly two variables have to be able to take 0)
-                ConstraintVertex quinary_cv2 = ConstraintVertex(ConstraintVertex::exactlyN(0, 2));
+                ConstraintVertex quinary_cv2 = ConstraintVertex("quinary_cv2", ConstraintVertex::exactlyN(0, 2));
                 // <= 3 (exactly three variables have to be able to take 0)
-                ConstraintVertex quinary_cv3 = ConstraintVertex(ConstraintVertex::exactlyN(0, 3));
+                ConstraintVertex quinary_cv3 = ConstraintVertex("quinary_cv3", ConstraintVertex::exactlyN(0, 3));
                 // <= 4 (exactly four variables have to be able to take 0)
-                ConstraintVertex quinary_cv4 = ConstraintVertex(ConstraintVertex::exactlyN(0, 4));
+                ConstraintVertex quinary_cv4 = ConstraintVertex("quinary_cv4", ConstraintVertex::exactlyN(0, 4));
                 // <= 5 (exactly five variables have to be able to take 0)
-                ConstraintVertex quinary_cv5 = ConstraintVertex(ConstraintVertex::exactlyN(0, 5));
+                ConstraintVertex quinary_cv5 = ConstraintVertex("quinary_cv5", ConstraintVertex::exactlyN(0, 5));
 
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (we can't have any 0) ~ cv1 (exactly one variable has to be able to take 0)

@@ -2,15 +2,17 @@
 
 #include <functional>
 #include <initializer_list>
+#include <string>
 
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
 using std::function, std::initializer_list, GraphImplementation::VariableVertex;
 
-GraphImplementation::ConstraintVertex::ConstraintVertex(function<bool(int, initializer_list<VariableVertex>)> pred)
+GraphImplementation::ConstraintVertex::ConstraintVertex(std::string name, function<bool(int, initializer_list<VariableVertex>)> pred)
 {
     this->pred = pred;
+    this->name = name;
 };
 
 GraphImplementation::ConstraintVertex::~ConstraintVertex()

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <string>
 
 #include "src/graphImplementation/vertices/VariableVertex.h"
 #include "src/graphImplementation/vertices/Vertex.h"
@@ -17,12 +18,16 @@ namespace GraphImplementation
     {
         private:
             std::function<bool(int, std::initializer_list<VariableVertex>)> pred;
+            std::string name;
 
         public:
-            ConstraintVertex(std::function<bool(int, std::initializer_list<VariableVertex>)> pred);
+            ConstraintVertex(std::string, std::function<bool(int, std::initializer_list<VariableVertex>)> pred);
             ~ConstraintVertex();
             // checks whether the constraint is met for mainVar given varList.
             bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
+
+            // getters
+            std::string getName() { return this->name; }
         
             // Example predicates that can be useful:
             // checks if given domains allow the existence of n or less of the checkedDomain value

@@ -47,11 +47,29 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, F, * boost::unit_test::label("CSP
     // by default, the frontier deals with unary constraints first, then in random order
     // std::vector<GraphImplementation::VariableVertex> arcConsistency(GraphImplementation::Graph);
     BOOST_AUTO_TEST_SUITE(arcConsistency);
+        
+        // when frontier is empty, the current state is diagnosed as one of:
+        // 1) no solution, 2) one solution, 3) many possible solutions.
+        BOOST_AUTO_TEST_CASE(empty_frontier_no_solution) {
 
-        // when frontier is 0 (solved): 1) no solution, 2) one solution, 3) many possible solutions
-        // frontier: 0, 1, 2 or more
-        // constraint: unary, binary, ternary and more
-        // variables: one, two or more
+        }
+
+        BOOST_AUTO_TEST_CASE(empty_frontier_unique_solution) {
+
+        }
+
+        BOOST_AUTO_TEST_CASE(empty_frontier_many_solutions) {
+
+        }
+
+        // frontier can also hold 1, or 2+ arcs
+        BOOST_AUTO_TEST_CASE(frontier_size_one) {
+
+        }
+        
+        BOOST_AUTO_TEST_CASE(frontier_size_two) {
+
+        }
 
     BOOST_AUTO_TEST_SUITE_END();
 
