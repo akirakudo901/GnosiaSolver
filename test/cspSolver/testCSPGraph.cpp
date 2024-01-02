@@ -137,8 +137,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             g.add_edge("vv", "cv");
 
             // test: check they are adjacent now
-            BOOST_TEST_REQUIRE(g.adjacent("cv", "vv") == true);
-            BOOST_TEST_REQUIRE(g.adjacent("vv", "cv") == true);
+            BOOST_TEST(g.adjacent("cv", "vv") == true);
+            BOOST_TEST(g.adjacent("vv", "cv") == true);
         }
 
         BOOST_AUTO_TEST_CASE(given_cv_non_existent) {
@@ -146,8 +146,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             g.add_variable("vv", {0, 1, 2});
 
             // test: check they aren't adjacent since one doesn't exist
-            BOOST_TEST_REQUIRE(g.adjacent("cv", "vv") == false);
-            BOOST_TEST_REQUIRE(g.adjacent("vv", "cv") == false);
+            BOOST_TEST(g.adjacent("cv", "vv") == false);
+            BOOST_TEST(g.adjacent("vv", "cv") == false);
         }
 
         BOOST_AUTO_TEST_CASE(given_vv_non_existent) {
@@ -155,14 +155,14 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             g.add_constraint("cv", GraphImplementation::ConstraintVertex::exactlyN(0, 0));
 
             // test: check they aren't adjacent since one doesn't exist
-            BOOST_TEST_REQUIRE(g.adjacent("cv", "vv") == false);
-            BOOST_TEST_REQUIRE(g.adjacent("vv", "cv") == false);
+            BOOST_TEST(g.adjacent("cv", "vv") == false);
+            BOOST_TEST(g.adjacent("vv", "cv") == false);
         }
 
         BOOST_AUTO_TEST_CASE(both_names_non_existent) {
             // test: check given named vertices aren't adjacent (since they don't exist)
-            BOOST_TEST_REQUIRE(g.adjacent("cv", "vv") == false);
-            BOOST_TEST_REQUIRE(g.adjacent("vv", "cv") == false);
+            BOOST_TEST(g.adjacent("cv", "vv") == false);
+            BOOST_TEST(g.adjacent("vv", "cv") == false);
         }
 
     BOOST_AUTO_TEST_SUITE_END();
@@ -553,8 +553,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv1") == true);
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv1").size(), 1);
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv2").size(), 2);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv1").size(), 1);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv2").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv1").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
             
@@ -573,8 +573,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST(g.adjacent("vv2", "cv1") == true);
             BOOST_TEST(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv1").size(), 1);
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv2").size(), 2);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv1").size(), 1);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv2").size(), 2);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv1").size(), 2);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
         }
@@ -603,8 +603,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv1") == true);
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv1").size(), 1);
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv2").size(), 2);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv1").size(), 1);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv2").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv1").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
             
@@ -621,8 +621,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST(g.adjacent("vv2", "cv1") == true);
             BOOST_TEST(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv1").size(), 0);
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv2").size(), 2);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv1").size(), 0);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv2").size(), 2);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv1").size(), 1);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
         }
@@ -651,8 +651,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv1") == true);
             BOOST_TEST_REQUIRE(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv1").size(), 1);
-            BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("vv2").size(), 2);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv1").size(), 1);
+            BOOST_REQUIRE_EQUAL(g.get_constraint_neighbors("vv2").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv1").size(), 2);
             BOOST_REQUIRE_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
             
@@ -669,8 +669,8 @@ BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPG
             BOOST_TEST(g.adjacent("vv1", "cv2") == false);
             BOOST_TEST(g.adjacent("vv2", "cv2") == true);
             // test about the internal storage as well
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv1").size(), 0);
-            BOOST_CHECK_EQUAL(g.get_variable_neighbors("vv2").size(), 1);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv1").size(), 0);
+            BOOST_CHECK_EQUAL(g.get_constraint_neighbors("vv2").size(), 1);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv1").size(), 0);
             BOOST_CHECK_EQUAL(g.get_variable_neighbors("cv2").size(), 1);
         }

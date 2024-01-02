@@ -9,6 +9,7 @@
 #include <functional>
 #include <initializer_list>
 #include <string>
+#include <tuple>
 
 #include "src/graphImplementation/Graph.h"
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
@@ -27,6 +28,11 @@ namespace CSPSolverImplementation
         // * Inserting vertex with existing name doesn't do anything,
         //   even when the older one was a VariableVertex
         std::unordered_map<std::string, GraphImplementation::ConstraintVertex> cv_map;
+
+        // given two names assumed adjacent vertices, return a tuple:
+        // <name of variable, name of constraint, if such pair was found>
+        std::tuple<std::string, std::string, bool> 
+        find_adjacent_vertex_pair_from_name(std::string name1, std::string name2);
         
     public:
         CSPGraph();
