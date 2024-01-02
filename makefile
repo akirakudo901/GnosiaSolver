@@ -68,7 +68,7 @@ ALL_EXE = $(MAIN)
 ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION) $(TEST_CSPSOLVER_IMPLEMENTATION)
 
 MAIN      = main
-MAIN_OBJS = main.o ConstraintVertex.o VariableVertex.o Vertex.o
+MAIN_OBJS = main.o ConstraintVertex.o CSPGraphCreator.o Graph.o VariableVertex.o Vertex.o
 
 
 
@@ -84,8 +84,8 @@ TEST_GRAPH_IMPLEMENTATION_OBJS = $(T_GRAPH_IMPL_NON_TEST_OBJS) $(T_GRAPH_IMPL_TE
 # TEST CSP SOLVER IMPLEMENTATION
 TEST_CSPSOLVER_IMPLEMENTATION = testCSPSolverImplementation
 # essentially relevant .o in TEST_OBJS_DIR, but now their path point inside OBJS_DIR or TEST_OBJS_DIR
-T_CSPSOLVER_IMPL_NON_TEST_OBJS = CSPGraphCreator.o CSPSolver.o Graph.o VariableVertex.o Vertex.o
-T_CSPSOLVER_IMPL_TEST_OBJS     = testCSPGraphCreator.o testCSPSolver.o
+T_CSPSOLVER_IMPL_NON_TEST_OBJS = CSPGraph.o CSPGraphCreator.o CSPSolver.o ConstraintVertex.o Graph.o VariableVertex.o Vertex.o
+T_CSPSOLVER_IMPL_TEST_OBJS     = testCSPGraph.o testCSPGraphCreator.o testCSPSolver.o
 
 TEST_CSPSOLVER_IMPLEMENTATION_OBJS = $(T_CSPSOLVER_IMPL_NON_TEST_OBJS) $(T_CSPSOLVER_IMPL_TEST_OBJS)
 
@@ -94,8 +94,8 @@ TEST_CSPSOLVER_IMPLEMENTATION_OBJS = $(T_CSPSOLVER_IMPL_NON_TEST_OBJS) $(T_CSPSO
 #####################
 # SOURCE FILES
 SOURCES = $(NON_TEST_SOURCES) $(TEST_SOURCES)
-NON_TEST_SOURCES = main.cpp Graph.cpp ConstraintVertex.cpp CSPGraphCreator.cpp CSPSolver.cpp VariableVertex.cpp Vertex.cpp 
-TEST_SOURCES = testConstraintVertex.cpp testCSPGraphCreator.cpp testCSPSolver.cpp testEdge.cpp testGraph.cpp testVariableVertex.cpp testVertex.cpp
+NON_TEST_SOURCES = ConstraintVertex.cpp CSPGraph.cpp CSPGraphCreator.cpp CSPSolver.cpp Graph.cpp main.cpp VariableVertex.cpp Vertex.cpp 
+TEST_SOURCES = testConstraintVertex.cpp testCSPGraph.cpp testCSPGraphCreator.cpp testCSPSolver.cpp testEdge.cpp testGraph.cpp testVariableVertex.cpp testVertex.cpp
 
 #####################
 # Non-test object dependencies
