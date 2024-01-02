@@ -123,7 +123,7 @@ void CSPSolverImplementation::CSPGraph::add_variable(std::string name, std::init
     // first check for any existing vertex with the same name, and if there is, do nothing
     if (contains_vertex(name)) return;
     // otherwise, create the new variable vertex
-    VariableVertex new_vv = VariableVertex(name, std::set<int>(domain));
+    VariableVertex new_vv = VariableVertex(name, domain);
     // copy the resulting object into the vv_map first
     vv_map.emplace(name, new_vv);
     // then access that object's reference, adding it to the Graph to be controlled
