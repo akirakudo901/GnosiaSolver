@@ -6,8 +6,6 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include <set>
-
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
@@ -28,7 +26,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(unary_constraint) {
                 // setup: setup variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
+                // vv1 = VariableVertex("vv1", {0, 1});
 
                 // <= 0 (cannot take the given value)
                 ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
@@ -51,9 +49,9 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // setup: set up variables and the constraint
                 
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{0});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {0});
 
                 // <= 0 (none can take 0)
                 ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
@@ -91,11 +89,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
                 // setup: set up variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{0});
-                VariableVertex vv4 = VariableVertex("vv4", std::set<int>{0});
-                VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {0});
+                VariableVertex vv4 = VariableVertex("vv4", {0});
+                VariableVertex vv5 = VariableVertex("vv5", {1});
 
                 // <= 0 (none can take 0)
                 ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::lesserOrEqualToN(0, 0));
@@ -148,7 +146,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(unary_constraint) {
                 // setup: setup variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
+                // vv1 = VariableVertex("vv1", {0, 1});
 
                 // <= 0, 1 (can take 1 or more number of the given value)
                 ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
@@ -171,9 +169,9 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // setup: set up variables and the constraint
                 
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{1});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {1});
 
                 // <= 0 (we can have no 0s)
                 ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
@@ -211,11 +209,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
                 // setup: set up variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{0});
-                VariableVertex vv4 = VariableVertex("vv4", std::set<int>{0});
-                VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {0});
+                VariableVertex vv4 = VariableVertex("vv4", {0});
+                VariableVertex vv5 = VariableVertex("vv5", {1});
 
                 // <= 0 (we don't need any 0)
                 ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::greaterOrEqualToN(0, 0));
@@ -263,7 +261,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(unary_constraint) {
                 // setup: setup variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
+                // vv1 = VariableVertex("vv1", {0, 1});
 
                 // <= 0 (there has to be zero variables taking the value 0)
                 ConstraintVertex unary_cv0 = ConstraintVertex("unary_cv0", ConstraintVertex::exactlyN(0, 0));
@@ -287,9 +285,9 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // setup: set up variables and the constraint
                 
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{1});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {1});
 
                 // <= 0 (we can have no 0s)
                 ConstraintVertex binary_cv0 = ConstraintVertex("binary_cv0", ConstraintVertex::exactlyN(0, 0));
@@ -327,11 +325,11 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
                 // setup: set up variables and constraints
                 // we consider a variable vertex which domain consists of {0, 1}:
-                // vv1 = VariableVertex("vv1", std::set<int>{0, 1});
-                VariableVertex vv2 = VariableVertex("vv2", std::set<int>{0, 1, 2});
-                VariableVertex vv3 = VariableVertex("vv3", std::set<int>{0});
-                VariableVertex vv4 = VariableVertex("vv4", std::set<int>{0});
-                VariableVertex vv5 = VariableVertex("vv5", std::set<int>{1});
+                // vv1 = VariableVertex("vv1", {0, 1});
+                VariableVertex vv2 = VariableVertex("vv2", {0, 1, 2});
+                VariableVertex vv3 = VariableVertex("vv3", {0});
+                VariableVertex vv4 = VariableVertex("vv4", {0});
+                VariableVertex vv5 = VariableVertex("vv5", {1});
 
                 // <= 0 (we can't have any 0)
                 ConstraintVertex quinary_cv0 = ConstraintVertex("quinary_cv0", ConstraintVertex::exactlyN(0, 0));

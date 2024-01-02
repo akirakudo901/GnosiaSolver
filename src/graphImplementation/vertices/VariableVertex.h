@@ -5,8 +5,9 @@
 #ifndef GRAPHIMPLEMENTATION_VERTICES_VARIABLEVERTEX_H
 #define GRAPHIMPLEMENTATION_VERTICES_VARIABLEVERTEX_H
 
-#include <string>
+#include <initializer_list>
 #include <set>
+#include <string>
 
 #include "src/graphImplementation/vertices/Vertex.h"
 
@@ -23,7 +24,7 @@ namespace GraphImplementation
         std::set<int> domain;
 
     public:
-        VariableVertex(std::string name, std::set<int> initialDomain);
+        VariableVertex(std::string name, std::initializer_list<int> initialDomain);
         ~VariableVertex();
         
         // Adds the value to the domain of the vertex, if not there already.

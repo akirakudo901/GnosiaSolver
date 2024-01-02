@@ -1,15 +1,15 @@
 // Author: Akira Kudo
 
-#include <iostream>
+#include <initializer_list>
 #include <string>
 #include <set>
 
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
-GraphImplementation::VariableVertex::VariableVertex(std::string name, std::set<int> initialDomain)
+GraphImplementation::VariableVertex::VariableVertex(std::string name, std::initializer_list<int> initialDomain)
 {
     this->name = name;
-    this->domain = initialDomain;
+    this->domain = std::set<int>(initialDomain);
 };
 
 GraphImplementation::VariableVertex::~VariableVertex()

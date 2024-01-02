@@ -6,8 +6,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
-#include <initializer_list>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -22,9 +20,9 @@ using namespace GraphImplementation;
 // defining fixture
 struct F {
 
-    VariableVertex vv1 = VariableVertex("", std::set<int>());
-    VariableVertex vv2 = VariableVertex("", std::set<int>());
-    VariableVertex vv3 = VariableVertex("", std::set<int>());
+    VariableVertex vv1 = VariableVertex("", {});
+    VariableVertex vv2 = VariableVertex("", {});
+    VariableVertex vv3 = VariableVertex("", {});
     ConstraintVertex cv1 = ConstraintVertex("",
         [] (auto mainVal, auto varList) { return false; }
         );
@@ -33,7 +31,7 @@ struct F {
 
     F() 
     {
-        std::set<int> initDomain = std::set<int>({0, 1, 2});
+        auto initDomain = {0, 1, 2};
     
         g = Graph();
         vv1 = VariableVertex("vv1", initDomain);
