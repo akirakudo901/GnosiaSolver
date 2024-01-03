@@ -105,3 +105,23 @@ void GraphImplementation::Graph::remove_edge(Vertex& x, Vertex& y)
     // DO THE EXACT SAME FOR y
     findAndRemoveEntryFromAdjacencyList(&adjList[&y], &x);
 };
+
+// ####################
+// PRIVATE FUNCTIONS
+// returns all edges of this graph as edge list into ostream
+std::ostream& GraphImplementation::Graph::return_edge_list_in_ostream(std::ostream& os) const {
+    os << "#######################\n";
+    os << "All edges as edge list.\n";
+    os << "#######################\n";
+    for (auto adjacency_list : adjList) {
+        auto main_node = adjacency_list.first;
+        auto adjacent_node_list = adjacency_list.second;
+        // first print the main node
+        os << " - " << main_node->getName() << ": ";
+        // then print of the adjacent node names
+        for (auto node : adjacent_node_list) os << node->getName();
+        os << ".\n";
+    }
+    os << "\n";
+    return os;
+};

@@ -3,6 +3,7 @@
 #include <initializer_list>
 #include <memory>
 #include <tuple>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -103,12 +104,15 @@ std::vector<GraphImplementation::VariableVertex*> CSPSolverImplementation::CSPGr
 // adds a constraint vertex with given name and predicate to the graph
 // * Inserting vertex with existing name doesn't do anything,
 //   even when the older one was a VariableVertex
-void CSPSolverImplementation::CSPGraph::add_constraint(std::string name, std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred)
+void CSPSolverImplementation::CSPGraph::add_constraint(
+    std::string name, 
+    std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred,
+    std::string description)
 {
     // first check for any existing vertex with the same name, and if there is, do nothing
     if (contains_vertex(name)) return;
     // otherwise, create the new constraint vertex
-    ConstraintVertex new_cv = ConstraintVertex(name, pred);
+    ConstraintVertex new_cv = ConstraintVertex(name, pred, description);
     // copy the resulting object into the cv_map first
     cv_map.emplace(name, new_cv);
     // then access that object's reference, adding it to the Graph to be controlled
@@ -120,10 +124,15 @@ void CSPSolverImplementation::CSPGraph::add_constraint(std::string name, std::fu
 // * Inserting vertex with existing name doesn't do anything,
 //   even when the older one was a ConstraintVertex        
 void CSPSolverImplementation::CSPGraph::add_variable(std::string name, std::initializer_list<int> domain) {
+    this->add_variable(name, std::set<int>(domain));
+};
+
+void CSPSolverImplementation::CSPGraph::add_variable(std::string name, std::set<int> domain)
+{
     // first check for any existing vertex with the same name, and if there is, do nothing
     if (contains_vertex(name)) return;
     // otherwise, create the new variable vertex
-    VariableVertex new_vv = VariableVertex(name, domain);
+    VariableVertex new_vv = VariableVertex(name, std::move(domain));
     // copy the resulting object into the vv_map first
     vv_map.emplace(name, new_vv);
     // then access that object's reference, adding it to the Graph to be controlled
@@ -225,3 +234,8 @@ CSPSolverImplementation::CSPGraph::find_adjacent_vertex_pair_from_name(std::stri
 
     return std::tuple<std::string, std::string, bool> { vv_name, cv_name, found_valid_pair };
 };
+
+// NON-MEMBER FUNCTION FOR PRINGINT CSPGraph
+// friend ostream& operator<<(ostream& os, TestClass const & tc) {
+//     return os << "I'm a friend of the class, msg=" << tc.msg << endl;
+// }

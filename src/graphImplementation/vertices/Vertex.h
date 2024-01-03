@@ -8,12 +8,25 @@
 #ifndef GRAPHIMPLEMENTATION_VERTICES_VERTEX_H
 #define GRAPHIMPLEMENTATION_VERTICES_VERTEX_H
 
+#include <iostream>
+#include <string>
+
 namespace GraphImplementation 
 {
     class Vertex 
     {
+    protected:
+        std::string name;
     public:
+        Vertex(std::string name) : name(name) {};
         virtual ~Vertex() = 0; // declare pure virtual destructor
+        std::string getName() const { return this->name; };
+
+        // overload operator<<
+        friend std::ostream& operator<<(std::ostream& os, const Vertex& v) {
+            os << "NAME: " << v.name;
+            return os;
+        };
     };
 
 };

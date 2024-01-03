@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <string>
 #include <tuple>
 
@@ -53,17 +54,39 @@ namespace CSPSolverImplementation
         // adds a constraint vertex with given name and predicate to the graph
         // * Inserting vertex with existing name doesn't do anything,
         //   even when the older one was a VariableVertex
-        void add_constraint(std::string name, std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred);
+        void add_constraint(
+            std::string name, 
+            std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred,
+            std::string description="This is the default description.");
         // adds a variable vertex with given name and domain to the graph
         // * Inserting vertex with existing name doesn't do anything,
         //   even when the older one was a ConstraintVertex
         void add_variable(std::string name, std::initializer_list<int> domain);
+        void add_variable(std::string name, std::set<int> domain);
         // removes vertex with given name if there, as well as edges connected to it
         void remove_vertex(std::string name);
         // adds edge between given variable vertex and constraint vertex identified by name, if not there
         void add_edge(std::string vv_name, std::string cv_name);
         // removes edge between given variable vertex and constraint vertex identified by name, if there
-        void remove_edge(std::string vv_name, std::string cv_name);      
+        void remove_edge(std::string vv_name, std::string cv_name);   
+
+        // overload << operator
+        friend std::ostream& operator<<(std::ostream& os, const CSPGraph& g) {
+            // to the stream, pass every vertices contained in this cspGraph
+            os << "##########################\n";
+            os << "All contained constraints.\n";
+            os << "##########################\n";
+            // Constraints first:
+            for (auto elem : g.cv_map) os << elem.second << "\n\n";
+            // Variables next:
+            os << "########################\n";
+            os << "All contained variables.\n";
+            os << "########################\n";
+            for (auto elem : g.vv_map) os << elem.second << "\n\n";
+            // then edges
+            g.return_edge_list_in_ostream(os);
+            return os;
+        };   
     };
 }
 

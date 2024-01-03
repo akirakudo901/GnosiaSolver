@@ -14,10 +14,9 @@ GraphImplementation::ConstraintVertex::ConstraintVertex(
     std::string name, 
     function<bool(int, initializer_list<VariableVertex>)> pred,
     std::string description)
+    : Vertex(name), pred(pred), description(description)
 {
-    this->pred = pred;
-    this->name = name;
-    this->description = description;
+    
 };
 
 GraphImplementation::ConstraintVertex::~ConstraintVertex()

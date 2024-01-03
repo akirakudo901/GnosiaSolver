@@ -34,7 +34,7 @@ namespace GraphImplementation
             bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
 
             // getters
-            std::string getName() const { return this->name; }
+            using Vertex::getName;
         
             // Example predicates that can be useful:
             // checks if given domains allow the existence of n or less of the checkedDomain value
@@ -46,7 +46,7 @@ namespace GraphImplementation
 
             // overwrite << operator
             friend std::ostream& operator<<(std::ostream& os, const ConstraintVertex& cv) {
-                os << " - Name: " << cv.name << "\n - Description: " << cv.description;
+                os << "NAME: " << cv.Vertex::name << "\n - Description: " << cv.description;
                 return os;
             };
     };

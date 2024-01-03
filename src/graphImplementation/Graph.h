@@ -10,6 +10,7 @@
 #ifndef GRAPHIMPLEMENTATION_GRAPH_H
 #define GRAPHIMPLEMENTATION_GRAPH_H
 
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 
@@ -21,7 +22,7 @@ namespace GraphImplementation
     class Graph 
     {
 
-    private:
+    protected:
         //use adjacency list:
         // faster than adjacency matrix & edge list in checking adjacency 
         //-> best in adding "ToCheck" arcs for arc consistency
@@ -31,6 +32,9 @@ namespace GraphImplementation
         // I want quick access to a "Vertex" object's registered neighbor nodes
         // as uniquely determined by its memory address 
         std::unordered_map<Vertex*, std::vector<Vertex*>> adjList;
+
+        // returns all edges of this graph as edge list into ostream
+        std::ostream& return_edge_list_in_ostream(std::ostream& os) const;
         
     public:
         Graph();
@@ -49,7 +53,20 @@ namespace GraphImplementation
         // adds edge z from vertex x to y if not there
         void add_edge(Vertex &x, Vertex &y, Edge z);
         // removes edge from x to y if there
-        void remove_edge(Vertex &x, Vertex &y);        
+        void remove_edge(Vertex &x, Vertex &y);
+
+        // overload << operator
+        friend std::ostream& operator<<(std::ostream& os, const Graph& g) {
+            // to the stream, pass every vertices contained in this Graph
+            os << "#######################\n";
+            os << "All contained vertices.\n";
+            os << "#######################\n";
+            for (auto elem : g.adjList) os << " - " << elem.first->getName() << "\n";
+            os << "\n";
+            // then all the edges from the edge list
+            g.return_edge_list_in_ostream(os);
+            return os;
+        };
     };
 }
 

@@ -6,6 +6,7 @@
 #define GRAPHIMPLEMENTATION_VERTICES_VARIABLEVERTEX_H
 
 #include <initializer_list>
+#include <iostream>
 #include <set>
 #include <string>
 
@@ -25,6 +26,7 @@ namespace GraphImplementation
 
     public:
         VariableVertex(std::string name, std::initializer_list<int> initialDomain);
+        VariableVertex(std::string name, std::set<int> initialDomain);
         ~VariableVertex();
         
         // Adds the value to the domain of the vertex, if not there already.
@@ -33,9 +35,16 @@ namespace GraphImplementation
         void removeFromDomain(int val);
 
         // getters
-        
-        std::string getName() { return this->name; };
+        using Vertex::getName;
         std::set<int> getDomain() { return this->domain; };
+
+        // overload << operator
+        friend std::ostream& operator<<(std::ostream& os, const VariableVertex& vv) {
+            os << "NAME: " << vv.Vertex::name << "\n - Domain: { ";
+            for (int elem : vv.domain) os << elem << " ";
+            os << "}";
+            return os;
+        };
         
     };
 }
