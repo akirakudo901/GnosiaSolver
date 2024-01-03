@@ -42,3 +42,6 @@ If you know the game, GNOSIA specifically can be modeled as follows:
     e.g. A crew member disappearing automatically rules out the possibility they are a Gnosia.
 
 One can solve a CSP problem defined as the above to get a certain grasp of the current situation.
+
+### Further Improvements
+* Need to decide one naming convention for methods (have a mixture of snake and camel cases right now)

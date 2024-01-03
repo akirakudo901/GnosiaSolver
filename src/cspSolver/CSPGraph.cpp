@@ -234,8 +234,3 @@ CSPSolverImplementation::CSPGraph::find_adjacent_vertex_pair_from_name(std::stri
 
     return std::tuple<std::string, std::string, bool> { vv_name, cv_name, found_valid_pair };
 };
-
-// NON-MEMBER FUNCTION FOR PRINGINT CSPGraph
-// friend ostream& operator<<(ostream& os, TestClass const & tc) {
-//     return os << "I'm a friend of the class, msg=" << tc.msg << endl;
-// }

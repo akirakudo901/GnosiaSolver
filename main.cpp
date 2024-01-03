@@ -4,6 +4,8 @@
 #include <string>
 #include <set>
 
+#include "src/cspSolver/CSPGraphCreator.h"
+
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
@@ -35,7 +37,7 @@ void printDomain(GraphImplementation::VariableVertex *vv) {
     std::cout << std::endl;
 };
 
-int main() 
+int old_main() 
 {
     string name = "newVertex";
     
@@ -46,6 +48,7 @@ int main()
     std::cout << "Name is: " << vv->getName() << "!" << std::endl;
 
     auto cv = std::make_unique<GraphImplementation::ConstraintVertex>(
+        "",
         [] (int mainVal, std::initializer_list<GraphImplementation::VariableVertex> varList)
         {
             for (auto variable : varList) {
@@ -69,5 +72,46 @@ int main()
                   << ((constraintIsMet_vv3) ? "" : "n't") 
                   <<" met for vv value " << dVal << " comparing against vv3!\n" << std::endl;
     }
+
+    return 0;
     
 };
+
+int old_main2() 
+{
+    auto vv = GraphImplementation::VariableVertex("newVariableVertex", {0, 10});
+
+    std::cout << "PRINTING VARIABLE VERTEX: \n" << vv << std::endl;
+
+    auto cv = GraphImplementation::ConstraintVertex(
+        "newConstraintVertex", 
+        GraphImplementation::ConstraintVertex::exactlyN(0, 1),
+        "Checks if there can be exactly one of type 0 domain value.");
+    
+    std::cout << "PRINTING CONSTRAINT VERTEX: \n" << cv << std::endl;
+
+    auto graph = GraphImplementation::Graph();
+    graph.add_vertex(vv);
+    graph.add_vertex(cv);
+    graph.add_edge(cv, vv, {});
+
+    std::cout << "PRINTING GRAPH: \n" << graph << std::endl;
+
+    auto cspGraph = CSPSolverImplementation::CSPGraph();
+    cspGraph.add_constraint(
+        "ExactlyOneZero", 
+        GraphImplementation::ConstraintVertex::exactlyN(0, 1),
+        "Constraints the number of 0s possible to one."
+    );
+    cspGraph.add_variable("Variable1", {0, 99, 1023});
+    cspGraph.add_edge("Variable1", "ExactlyOneZero");
+
+    std::cout << "PRINTING CSP GRAPH: \n" << cspGraph << std::endl;
+
+    return 0;
+};
+
+int main() {
+    CSPSolverImplementation::CSPGraphCreator cspGc;
+    cspGc.StartCSPGraphCreator();
+}

@@ -68,7 +68,7 @@ ALL_EXE = $(MAIN)
 ALL_TEST = $(TEST_GRAPH_IMPLEMENTATION) $(TEST_CSPSOLVER_IMPLEMENTATION)
 
 MAIN      = main
-MAIN_OBJS = main.o ConstraintVertex.o CSPGraphCreator.o Graph.o VariableVertex.o Vertex.o
+MAIN_OBJS = main.o ConstraintVertex.o CSPGraph.o CSPGraphCreator.o Graph.o VariableVertex.o Vertex.o
 
 
 

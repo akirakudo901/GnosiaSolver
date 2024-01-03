@@ -20,16 +20,17 @@
 #include <string>
 #include <tuple>
 
+#include "src/cspSolver/CSPGraph.h"
 #include "src/graphImplementation/Graph.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
-namespace CSPSolver 
+namespace CSPSolverImplementation 
 {
 
     class CSPSolver 
     {
         private:
-            GraphImplementation::Graph CspGraph;
+            GraphImplementation::Graph cspGraph;
             // run a single step of arc consistency on given Graph and list of arcs arranged in given Frontier;
             // using differing Frontiers might change the runtime & efficiency of the process
             template <typename Frontier>
@@ -39,8 +40,6 @@ namespace CSPSolver
             CSPSolver();
             ~CSPSolver();
 
-            // create a CSP graph for a given problem - using a CLI?
-            void createCspGraph();
             // save a created CSP graph
             void saveCspGraph(GraphImplementation::Graph graph, std::string saveDir);
             // load a CSP graph
@@ -52,6 +51,8 @@ namespace CSPSolver
             // run DFS with pruning and return the answer
             std::vector<GraphImplementation::VariableVertex> depthFirstSearchWithPruning(GraphImplementation::Graph graph);
 
+            // creates and returns a CSPGraph
+            static CSPGraph createCspGraph();
     };
 
 };
