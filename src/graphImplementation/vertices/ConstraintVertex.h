@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <string>
 
 #include "src/graphImplementation/vertices/VariableVertex.h"
@@ -19,15 +20,21 @@ namespace GraphImplementation
         private:
             std::function<bool(int, std::initializer_list<VariableVertex>)> pred;
             std::string name;
+            // description aims to make printing of ConstraintVertex clearer;
+            // instead of us taking pred apart, we expect you to specify info of what
+            // pred does in description in case you want descriptive info when printing
+            std::string description;
 
         public:
-            ConstraintVertex(std::string, std::function<bool(int, std::initializer_list<VariableVertex>)> pred);
+            ConstraintVertex(std::string, 
+                             std::function<bool(int, std::initializer_list<VariableVertex>)> pred,
+                             std::string description="This is the default description.");
             ~ConstraintVertex();
             // checks whether the constraint is met for mainVar given varList.
             bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
 
             // getters
-            std::string getName() { return this->name; }
+            std::string getName() const { return this->name; }
         
             // Example predicates that can be useful:
             // checks if given domains allow the existence of n or less of the checkedDomain value
@@ -36,7 +43,12 @@ namespace GraphImplementation
             static std::function<bool(int, std::initializer_list<VariableVertex>)> greaterOrEqualToN(int checkedDomain, int n);
             // checks if given domains allow the existence of exactly n of the checkedDomain value
             static std::function<bool(int, std::initializer_list<VariableVertex>)> exactlyN(int checkedDomain, int n);
-        
+
+            // overwrite << operator
+            friend std::ostream& operator<<(std::ostream& os, const ConstraintVertex& cv) {
+                os << " - Name: " << cv.name << "\n - Description: " << cv.description;
+                return os;
+            };
     };
 };
 

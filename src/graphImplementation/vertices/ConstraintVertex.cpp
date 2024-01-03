@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <string>
 
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
@@ -9,10 +10,14 @@
 
 using std::function, std::initializer_list, GraphImplementation::VariableVertex;
 
-GraphImplementation::ConstraintVertex::ConstraintVertex(std::string name, function<bool(int, initializer_list<VariableVertex>)> pred)
+GraphImplementation::ConstraintVertex::ConstraintVertex(
+    std::string name, 
+    function<bool(int, initializer_list<VariableVertex>)> pred,
+    std::string description)
 {
     this->pred = pred;
     this->name = name;
+    this->description = description;
 };
 
 GraphImplementation::ConstraintVertex::~ConstraintVertex()
