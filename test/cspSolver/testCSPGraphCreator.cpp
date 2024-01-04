@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-BOOST_AUTO_TEST_SUITE(CSPGraphCreator_test_suite, * boost::unit_test::label("Edge"));
+BOOST_AUTO_TEST_SUITE(CSPGraphCreator_test_suite, * boost::unit_test::label("CSPGraphCreator"));
     
     BOOST_AUTO_TEST_CASE(cspGraphCreator_no_test) {
         std::cout << "CSPGraphCreator will not be tested as I am unsure of how best to test CLI interaction." << std::endl;

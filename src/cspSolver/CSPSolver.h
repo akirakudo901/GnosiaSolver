@@ -41,8 +41,12 @@ namespace CSPSolverImplementation
             ~CSPSolver();
 
             // save a created CSP graph
+            // *not implemented yet; have to find a way to serialize 
+            // constraints first, and I don't think we need that yet
             void saveCspGraph(GraphImplementation::Graph graph, std::string saveDir);
             // load a CSP graph
+            // *not implemented yet; have to find a way to serialize 
+            // constraints first, and I don't think we need that yet
             void loadCspGraph(std::string loadDir);
 
             // run arc consistency and return the answer

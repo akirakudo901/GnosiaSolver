@@ -1,9 +1,12 @@
-#include <initializer_list>
 #include <iostream>
 #include <memory>
+#include <queue>
 #include <string>
 #include <set>
+#include <vector>
 
+#include "src/cspSolver/ARC.h"
+#include "src/cspSolver/frontier/Frontier.h"
 #include "src/cspSolver/CSPGraphCreator.h"
 
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
@@ -49,7 +52,7 @@ int old_main()
 
     auto cv = std::make_unique<GraphImplementation::ConstraintVertex>(
         "",
-        [] (int mainVal, std::initializer_list<GraphImplementation::VariableVertex> varList)
+        [] (int mainVal, std::vector<GraphImplementation::VariableVertex> varList)
         {
             for (auto variable : varList) {
                 auto vDomain = variable.getDomain();
@@ -112,6 +115,26 @@ int old_main2()
 };
 
 int main() {
-    CSPSolverImplementation::CSPGraphCreator cspGc;
-    cspGc.StartCSPGraphCreator();
+    // CSPSolverImplementation::CSPGraphCreator cspGc;
+    // cspGc.StartCSPGraphCreator();
+    CSPSolverImplementation::ARC arc;
+    auto vv = GraphImplementation::VariableVertex("newVariableVertex", {0, 10});
+    auto cv = GraphImplementation::ConstraintVertex(
+        "newConstraintVertex", 
+        GraphImplementation::ConstraintVertex::exactlyN(0, 1),
+        "Checks if there can be exactly one of type 0 domain value.");
+
+    arc.main_var = &vv;
+    arc.other_var_list = std::vector<GraphImplementation::VariableVertex*>({});
+    arc.constraint = &cv;
+
+    CSPSolverImplementation::Frontier f = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
+    std::cout << f.empty() << std::endl;
+    std::cout << f.size() << std::endl;
+    f = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
+    std::cout << f.empty() << std::endl;
+    std::cout << f.size() << std::endl;
+    f.push(arc);
+    std::cout << f.empty() << std::endl;
+    std::cout << f.size() << std::endl;
 }
