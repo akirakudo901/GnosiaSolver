@@ -39,7 +39,7 @@ struct F {
         vv3 = VariableVertex("vv3", initDomain);
         cv1 = ConstraintVertex( //cv1's constraint itself isn't part of the test
             "",
-            [] (int mainVar, std::initializer_list<VariableVertex> varList) { return false; }
+            [] (int mainVar, std::vector<VariableVertex> varList) { return false; }
             );
         e = Edge();    
     };

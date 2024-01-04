@@ -6,9 +6,9 @@
 #define GRAPHIMPLEMENTATION_VERTICES_CONSTRAINTVERTEX_H
 
 #include <functional>
-#include <initializer_list>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "src/graphImplementation/vertices/VariableVertex.h"
 #include "src/graphImplementation/vertices/Vertex.h"
@@ -18,7 +18,7 @@ namespace GraphImplementation
     class ConstraintVertex : public Vertex
     {
         private:
-            std::function<bool(int, std::initializer_list<VariableVertex>)> pred;
+            std::function<bool(int, std::vector<VariableVertex>)> pred;
             std::string name;
             // description aims to make printing of ConstraintVertex clearer;
             // instead of us taking pred apart, we expect you to specify info of what
@@ -27,22 +27,22 @@ namespace GraphImplementation
 
         public:
             ConstraintVertex(std::string, 
-                             std::function<bool(int, std::initializer_list<VariableVertex>)> pred,
+                             std::function<bool(int, std::vector<VariableVertex>)> pred,
                              std::string description="This is the default description.");
             ~ConstraintVertex();
             // checks whether the constraint is met for mainVar given varList.
-            bool constraintIsMet(int mainVal, std::initializer_list<VariableVertex> varList);
+            bool constraintIsMet(int mainVal, std::vector<VariableVertex> varList);
 
             // getters
             using Vertex::getName;
         
             // Example predicates that can be useful:
             // checks if given domains allow the existence of n or less of the checkedDomain value
-            static std::function<bool(int, std::initializer_list<VariableVertex>)> lesserOrEqualToN(int checkedDomain, int n);
+            static std::function<bool(int, std::vector<VariableVertex>)> lesserOrEqualToN(int checkedDomain, int n);
             // checks if given domains allow the existence of n or more of the checkedDomain value
-            static std::function<bool(int, std::initializer_list<VariableVertex>)> greaterOrEqualToN(int checkedDomain, int n);
+            static std::function<bool(int, std::vector<VariableVertex>)> greaterOrEqualToN(int checkedDomain, int n);
             // checks if given domains allow the existence of exactly n of the checkedDomain value
-            static std::function<bool(int, std::initializer_list<VariableVertex>)> exactlyN(int checkedDomain, int n);
+            static std::function<bool(int, std::vector<VariableVertex>)> exactlyN(int checkedDomain, int n);
 
             // overwrite << operator
             friend std::ostream& operator<<(std::ostream& os, const ConstraintVertex& cv) {

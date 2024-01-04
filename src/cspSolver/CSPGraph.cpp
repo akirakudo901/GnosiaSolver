@@ -106,7 +106,7 @@ std::vector<GraphImplementation::VariableVertex*> CSPSolverImplementation::CSPGr
 //   even when the older one was a VariableVertex
 void CSPSolverImplementation::CSPGraph::add_constraint(
     std::string name, 
-    std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred,
+    std::function<bool(int, std::vector<GraphImplementation::VariableVertex>)> pred,
     std::string description)
 {
     // first check for any existing vertex with the same name, and if there is, do nothing

@@ -7,10 +7,10 @@
 #define CSPGRAPH_H
 
 #include <functional>
-#include <initializer_list>
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "src/graphImplementation/Graph.h"
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
@@ -56,7 +56,7 @@ namespace CSPSolverImplementation
         //   even when the older one was a VariableVertex
         void add_constraint(
             std::string name, 
-            std::function<bool(int, std::initializer_list<GraphImplementation::VariableVertex>)> pred,
+            std::function<bool(int, std::vector<GraphImplementation::VariableVertex>)> pred,
             std::string description="This is the default description.");
         // adds a variable vertex with given name and domain to the graph
         // * Inserting vertex with existing name doesn't do anything,

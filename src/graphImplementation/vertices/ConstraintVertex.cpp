@@ -1,18 +1,18 @@
 // Author: Akira Kudo
 
 #include <functional>
-#include <initializer_list>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
-using std::function, std::initializer_list, GraphImplementation::VariableVertex;
+using std::function, std::vector, GraphImplementation::VariableVertex;
 
 GraphImplementation::ConstraintVertex::ConstraintVertex(
     std::string name, 
-    function<bool(int, initializer_list<VariableVertex>)> pred,
+    function<bool(int, vector<VariableVertex>)> pred,
     std::string description)
     : Vertex(name), pred(pred), description(description)
 {
@@ -25,7 +25,7 @@ GraphImplementation::ConstraintVertex::~ConstraintVertex()
 };
 
 // return whether the corresponding constraint is met given the variable vertices
-bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, initializer_list<VariableVertex> varList)
+bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex> varList)
 {
     return this->pred(mainVal, varList);
 };
@@ -33,9 +33,9 @@ bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, initial
 // checks if given domains allow the existence of n or less of the checkedDomain value
 // e.g. checkedDomain = werewolf, n = 3: returns false if there has to be more than 
 //      3 werewolves in the mix, true otherwise
-function<bool(int, initializer_list<VariableVertex>)> GraphImplementation::ConstraintVertex::lesserOrEqualToN(int checkedDomain, int n) 
+function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::lesserOrEqualToN(int checkedDomain, int n) 
 {
-    return [=] (int mainVal, initializer_list<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex> varList) {
         // keep count of the number of variables which value has to be checkedDomain
         int hasToBeCheckedDomain = 0;
 
@@ -59,9 +59,9 @@ function<bool(int, initializer_list<VariableVertex>)> GraphImplementation::Const
 // checks if given domains allow the existence of n or more of the checkedDomain value
 // e.g. checkedDomain = werewolf, n = 3: returns false if there has to be less than 
 //      3 werewolves in the mix, true otherwise
-function<bool(int, initializer_list<VariableVertex>)> GraphImplementation::ConstraintVertex::greaterOrEqualToN(int checkedDomain, int n)
+function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::greaterOrEqualToN(int checkedDomain, int n)
 {
-    return [=] (int mainVal, initializer_list<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex> varList) {
         // keep count of the number of variables which value can be checkedDomain
         int canBeCheckedDomain = 0;
 
@@ -85,9 +85,9 @@ function<bool(int, initializer_list<VariableVertex>)> GraphImplementation::Const
 };
 
 // checks if given domains allow the existence of exactly n of the checkedDomain value
-function<bool(int, initializer_list<VariableVertex>)> GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, int n)
+function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, int n)
 {
-    return [=] (int mainVal, initializer_list<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex> varList) {
         // count both the number of variables which value 'can be' / 'have to be' checkedDomain.
         int canBeCheckedDomain = 0;
         int hasToBeCheckedDomain = 0;
