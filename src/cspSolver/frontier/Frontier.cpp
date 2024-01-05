@@ -8,11 +8,13 @@
 CSPSolverImplementation::Frontier::Frontier(CSPSolverImplementation::Frontier::FrontierMode mode)
 {
     this->mode = mode;
+    this->unaryFrontier = std::queue<CSPSolverImplementation::ARC>();
+    this->nonUnaryFrontier = std::queue<CSPSolverImplementation::ARC>();
 };
 
 CSPSolverImplementation::Frontier::~Frontier()
 {
-    
+
 };
 
 // push an arc that is an ARC struct to frontier
@@ -23,7 +25,7 @@ void CSPSolverImplementation::Frontier::push(CSPSolverImplementation::ARC arc)
         case QueueMode:
             // check the size of variable list in arc
             // if it is none, we have a unary constraint
-            if (arc.other_var_list.empty()) 
+            if (arc.other_var_list.empty())
                 unaryFrontier.push(arc);
             // otherwise, we have a non-unary constraint
             else 

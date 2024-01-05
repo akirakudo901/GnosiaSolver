@@ -16,17 +16,17 @@
 using GraphImplementation::ConstraintVertex, GraphImplementation::VariableVertex; 
 
 // defining fixture
-struct F {
+struct TestCSPGraph_Fixture {
     CSPSolverImplementation::CSPGraph g;
     
-    F() {
+    TestCSPGraph_Fixture() {
         g = CSPSolverImplementation::CSPGraph();
     };
     
-    ~F() {};
+    ~TestCSPGraph_Fixture() {};
 };
 
-BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, F, * boost::unit_test::label("CSPGraph"));
+BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, TestCSPGraph_Fixture, * boost::unit_test::label("CSPGraph"));
 
     // returns a pointer to a constraint vertex with the given name, or nullptr if it doesn't exist
     // GraphImplementation::ConstraintVertex* get_constraint(std::string name);

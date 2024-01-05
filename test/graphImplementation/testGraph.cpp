@@ -18,7 +18,7 @@
 using namespace GraphImplementation;
 
 // defining fixture
-struct F {
+struct TestGraph_Fixture {
 
     VariableVertex vv1 = VariableVertex("", {});
     VariableVertex vv2 = VariableVertex("", {});
@@ -29,7 +29,7 @@ struct F {
     Graph g;
     Edge e;
 
-    F() 
+    TestGraph_Fixture() 
     {
         auto initDomain = {0, 1, 2};
     
@@ -44,10 +44,10 @@ struct F {
         e = Edge();    
     };
     
-    ~F() {};
+    ~TestGraph_Fixture() {};
 };
 
-BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, F, * boost::unit_test::label("Graph"));
+BOOST_FIXTURE_TEST_SUITE(Graph_test_suite, TestGraph_Fixture, * boost::unit_test::label("Graph"));
 
     // function returns whether vertex x is in the graph
     // bool contains_vertex(Vertex *x)

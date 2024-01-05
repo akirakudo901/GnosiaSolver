@@ -2,6 +2,9 @@
 // Description: Implements a frontier object acting as container for 
 //  arc consistency to control the order in which arcs are checked.
 
+#ifndef FRONTIER_H
+#define FRONTIER_H
+
 #include <queue>
 #include <vector>
 
@@ -26,8 +29,8 @@ namespace CSPSolverImplementation
         // REQUIRES that this frontier isn't empty - or does undefined behavior!
         CSPSolverImplementation::ARC pop();
         // mostly simple getter
-        size_t size() { return (this->unaryFrontier.size() + this->nonUnaryFrontier.size()); }
-        bool empty() { return (this->unaryFrontier.empty() && this->nonUnaryFrontier.empty()); }
+        size_t size() const { return (this->unaryFrontier.size() + this->nonUnaryFrontier.size()); }
+        bool empty() const { return (this->unaryFrontier.empty() && this->nonUnaryFrontier.empty()); }
     
     private:
         FrontierMode mode;
@@ -37,3 +40,5 @@ namespace CSPSolverImplementation
         std::queue<CSPSolverImplementation::ARC> nonUnaryFrontier;
     };
 }
+
+#endif

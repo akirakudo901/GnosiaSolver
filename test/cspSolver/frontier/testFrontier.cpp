@@ -4,9 +4,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-// TODO REMOVE
-#include <iostream>
-
+#include <queue>
 #include <vector>
 
 #include "src/cspSolver/ARC.h"
@@ -16,9 +14,9 @@
 #include "src/graphImplementation/vertices/VariableVertex.h"
 
 // define fixture
-struct F
+struct TestFrontier_Fixture
 {
-    CSPSolverImplementation::Frontier no_way_this_collides_in_name = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
+    CSPSolverImplementation::Frontier frontier = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
 
     GraphImplementation::VariableVertex vv1 = GraphImplementation::VariableVertex("", {});
     GraphImplementation::VariableVertex vv2 = GraphImplementation::VariableVertex("", {});
@@ -30,14 +28,13 @@ struct F
     GraphImplementation::ConstraintVertex cv3 = GraphImplementation::ConstraintVertex("", GraphImplementation::ConstraintVertex::exactlyN(0, 0));
     GraphImplementation::ConstraintVertex cv4 = GraphImplementation::ConstraintVertex("", GraphImplementation::ConstraintVertex::exactlyN(0, 0));
 
-    CSPSolverImplementation::ARC unary1; 
-    CSPSolverImplementation::ARC unary2; 
+    CSPSolverImplementation::ARC unary1;
+    CSPSolverImplementation::ARC unary2;
     CSPSolverImplementation::ARC non_unary1; 
     CSPSolverImplementation::ARC non_unary2;
 
-    F() {
-        no_way_this_collides_in_name = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
-
+    TestFrontier_Fixture() {
+        frontier  = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
         vv1 = GraphImplementation::VariableVertex("vv1", {10, 11, 12});
         vv2 = GraphImplementation::VariableVertex("vv2", {20, 21, 22});
         vv3 = GraphImplementation::VariableVertex("vv3", {30, 31, 32});
@@ -49,10 +46,10 @@ struct F
         cv4 = GraphImplementation::ConstraintVertex("cv4", GraphImplementation::ConstraintVertex::lesserOrEqualToN(1, 2));
 
         unary1.main_var = &vv1; unary1.constraint = &cv1;
-        unary1.other_var_list = std::vector<GraphImplementation::VariableVertex*>({}); 
+        unary1.other_var_list = std::vector<GraphImplementation::VariableVertex*>();
         
         unary2.main_var = &vv2; unary2.constraint = &cv2;
-        unary2.other_var_list = std::vector<GraphImplementation::VariableVertex*>({}); 
+        unary2.other_var_list = std::vector<GraphImplementation::VariableVertex*>(); 
         
         non_unary1.main_var = &vv3; non_unary1.constraint = &cv3;
         non_unary1.other_var_list = std::vector<GraphImplementation::VariableVertex*>({&vv1, &vv2}); 
@@ -60,11 +57,12 @@ struct F
         non_unary2.main_var = &vv4; non_unary2.constraint = &cv4;
         non_unary2.other_var_list = std::vector<GraphImplementation::VariableVertex*>({&vv3, &vv4}); 
     };
-    ~F() {};
+
+    ~TestFrontier_Fixture() {};
 };
 
 
-BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, F, * boost::unit_test::label("Frontier"));
+BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::unit_test::label("Frontier"));
     
     // push an arc that is an ARC struct to frontier
     // void push(CSPSolverImplementation::ARC arc);
@@ -72,79 +70,150 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, F, * boost::unit_test::label("Fron
 
         BOOST_AUTO_TEST_CASE(push_1_unary) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(no_way_this_collides_in_name.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.size() == 0);
             // setup: push one unary arc
-            no_way_this_collides_in_name.push(unary1);
+            frontier.push(unary1);
             // test: test the pushed one is in now
-            BOOST_CHECK_EQUAL(no_way_this_collides_in_name.size(), 1);
-            BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), unary1);
+            BOOST_CHECK_EQUAL(frontier.size(), 1);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary1);
         };
 
         BOOST_AUTO_TEST_CASE(push_1_non_unary) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(no_way_this_collides_in_name.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
             // setup: push one non-unary arc
-            no_way_this_collides_in_name.push(non_unary1); 
+            frontier.push(non_unary1); 
             // test: test the pushed one is in now
-            BOOST_CHECK_EQUAL(no_way_this_collides_in_name.size(), 1);
-            // BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), non_unary1);
+            BOOST_CHECK_EQUAL(frontier.size(), 1);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);
         };
 
         BOOST_AUTO_TEST_CASE(push_2_unary_2_non_unary) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(no_way_this_collides_in_name.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
             // setup: push two unary & two non-unary arcs
-            no_way_this_collides_in_name.push(unary1); 
-            no_way_this_collides_in_name.push(unary2); 
-            no_way_this_collides_in_name.push(non_unary1); 
-            no_way_this_collides_in_name.push(non_unary2); 
+            frontier.push(unary1); 
+            frontier.push(unary2); 
+            frontier.push(non_unary1); 
+            frontier.push(non_unary2); 
             // test: test the pushed ones are in now
-            BOOST_CHECK_EQUAL(no_way_this_collides_in_name.size(), 4);
-            // BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), unary1);
-            // BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), unary2);
-            // BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), non_unary1);
-            // BOOST_CHECK_EQUAL(no_way_this_collides_in_name.pop(), non_unary2);
+            BOOST_CHECK_EQUAL(frontier.size(), 4);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary2);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary2);
         };
 
     BOOST_AUTO_TEST_SUITE_END();
 
-    // // pop an arc that is an ARC struct from the frontier
-    // // REQUIRES that this frontier isn't empty - or does undefined behavior!
-    // // CSPSolverImplementation::ARC pop();
-    // BOOST_AUTO_TEST_SUITE(pop);
+    // pop an arc that is an ARC struct from the frontier
+    // REQUIRES that this frontier isn't empty - or does undefined behavior!
+    // CSPSolverImplementation::ARC pop();
+    BOOST_AUTO_TEST_SUITE(pop);
         
-    //     // BOOST_AUTO_TEST_CASE() {
-    //     //     // presetup:
-    //     //     // preconditions:
-    //     //     // setup:
-    //     //     // test:
-    //     // };
+        BOOST_AUTO_TEST_CASE(single_unary) {
+            // presetup: have one unary arc in frontier
+            frontier.push(unary1);
+            // preconditions: check frontier isn't empty
+            BOOST_REQUIRE_EQUAL(frontier.size(), 1);
+            // test: pop and check we get the correct one
+            CSPSolverImplementation::ARC popped = frontier.pop();
+            BOOST_CHECK_EQUAL(popped, unary1);
+        };
 
-    // BOOST_AUTO_TEST_SUITE_END();
+        BOOST_AUTO_TEST_CASE(single_non_unary) {
+            // presetup: have one non-unary arc in frontier
+            frontier.push(non_unary1);
+            // preconditions: check frontier isn't empty
+            BOOST_REQUIRE_EQUAL(frontier.size(), 1);
+            // test: pop and check we get the correct one
+            CSPSolverImplementation::ARC popped = frontier.pop();
+            BOOST_CHECK_EQUAL(popped, non_unary1);
+        };
 
-    // // int size()
-    // BOOST_AUTO_TEST_SUITE(size);
+        BOOST_AUTO_TEST_CASE(two_unary_two_non_unary) {
+            // presetup: insert two unary and two non-unary arcs
+            frontier.push(non_unary2);
+            frontier.push(unary1);
+            frontier.push(non_unary1);
+            frontier.push(unary2);
+            // preconditions: check the number of arcs in the frontier
+            BOOST_REQUIRE_EQUAL(frontier.size(), 4);
+            // test: pop to check we get unary first, then non-unary
+            //  but in order of push between unary / non-unary
+            BOOST_CHECK_EQUAL(frontier.pop(), unary1); //first pushed among unary
+            BOOST_CHECK_EQUAL(frontier.pop(), unary2);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary2); //first pushed among non-unary
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);
+        };
+
+    BOOST_AUTO_TEST_SUITE_END();
+
+    // int size()
+    BOOST_AUTO_TEST_SUITE(size);
         
-    //     // BOOST_AUTO_TEST_CASE() {
-    //     //     // presetup:
-    //     //     // preconditions:
-    //     //     // setup:
-    //     //     // test:
-    //     // };
+        BOOST_AUTO_TEST_CASE(empty) {
+            // preconditions: check frontier is emtpy
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            // test: check there are 0 objects
+            BOOST_CHECK_EQUAL(frontier.size(), 0);
+        };
 
-    // BOOST_AUTO_TEST_SUITE_END();
+        BOOST_AUTO_TEST_CASE(one) {
+            // preconditions: check frontier is emtpy
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            // setup: add one arc
+            frontier.push(unary2);
+            // test: check there are 1 object
+            BOOST_CHECK_EQUAL(frontier.size(), 1);
+        };
+
+        BOOST_AUTO_TEST_CASE(four) {
+            // preconditions: check frontier is emtpy
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            // setup: add four arcs
+            frontier.push(unary1);
+            frontier.push(unary2);
+            frontier.push(non_unary1);
+            frontier.push(non_unary2);
+            // test: check there are 4 objects
+            BOOST_CHECK_EQUAL(frontier.size(), 4);
+        };
+
+    BOOST_AUTO_TEST_SUITE_END();
 
     
-    // // bool empty()
-    // BOOST_AUTO_TEST_SUITE(empty);
+    // bool empty()
+    BOOST_AUTO_TEST_SUITE(empty);
         
-    //     // BOOST_AUTO_TEST_CASE() {
-    //     //     // presetup:
-    //     //     // preconditions:
-    //     //     // setup:
-    //     //     // test:
-    //     // };
+        BOOST_AUTO_TEST_CASE(is_empty) {
+            // test: check frontier is empty by default
+            BOOST_TEST(frontier.empty() == true);
+        };
 
-    // BOOST_AUTO_TEST_SUITE_END();
+        BOOST_AUTO_TEST_CASE(is_not_empty_1) {
+            // setup: add one arc
+            frontier.push(unary1);
+            // test: check frontier isn't empty anymore
+            BOOST_TEST(frontier.empty() == false);
+        };
+
+        BOOST_AUTO_TEST_CASE(is_not_empty_4_then_is_empty) {
+            // setup: add four arcs and check we're not empty anymore
+            frontier.push(unary1);
+            frontier.push(unary2);
+            frontier.push(non_unary1);
+            frontier.push(non_unary2);
+            BOOST_TEST(frontier.empty() == false);
+            // then remove everything
+            frontier.pop();
+            frontier.pop();
+            frontier.pop();
+            frontier.pop();
+            // test: check we're empty again
+            BOOST_TEST(frontier.empty() == true);
+        };
+
+    BOOST_AUTO_TEST_SUITE_END();
 
 BOOST_AUTO_TEST_SUITE_END();
