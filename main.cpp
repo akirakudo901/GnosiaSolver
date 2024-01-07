@@ -129,12 +129,13 @@ int main() {
     arc.constraint = &cv;
 
     CSPSolverImplementation::Frontier f = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
-    std::cout << f.empty() << std::endl;
-    std::cout << f.size() << std::endl;
+    std::cout << "Is empty: " << f.empty() << std::endl;
+    std::cout << "Size: " << f.size() << std::endl;
     f = CSPSolverImplementation::Frontier(CSPSolverImplementation::Frontier::QueueMode);
-    std::cout << f.empty() << std::endl;
-    std::cout << f.size() << std::endl;
+    std::cout << "Is empty: " << f.empty() << std::endl;
+    std::cout << "Size: " << f.size() << std::endl;
     f.push(arc);
-    std::cout << f.empty() << std::endl;
-    std::cout << f.size() << std::endl;
+    std::cout << "Is empty: " << f.empty() << std::endl;
+    std::cout << "Size: " << f.size() << std::endl;
+    std::cout << "Currently in frontier: " << f.pop() << std::endl;
 }
