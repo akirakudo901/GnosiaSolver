@@ -10,6 +10,7 @@ CSPSolverImplementation::Frontier::Frontier(CSPSolverImplementation::Frontier::F
     this->mode = mode;
     this->unaryFrontier = std::queue<CSPSolverImplementation::ARC>();
     this->nonUnaryFrontier = std::queue<CSPSolverImplementation::ARC>();
+    this->arc_is_in_frontier = std::unordered_map<std::string, bool>();
 };
 
 CSPSolverImplementation::Frontier::~Frontier()
@@ -20,6 +21,23 @@ CSPSolverImplementation::Frontier::~Frontier()
 // push an arc that is an ARC struct to frontier
 void CSPSolverImplementation::Frontier::push(CSPSolverImplementation::ARC arc) 
 {
+    // first check whether we need to insert
+
+    // get the unique name of the arc 
+    // TODO: generate_unique_string is O(n) OR MORE, UNSURE OF EFFICIENCY
+    std::string arc_name = arc.generate_unique_string();
+    // if arc_name is not in map, add a 'true' entry to map 
+    if (arc_is_in_frontier.find(arc_name) == arc_is_in_frontier.end())
+        arc_is_in_frontier.insert({arc_name, true});
+    // if arc_name is in there and indicates false (arc not in frontier),
+    // set existence to true
+    else if (!arc_is_in_frontier.at(arc_name))
+        arc_is_in_frontier.insert({arc_name, true});
+    // otherwise arc is already in map - skip
+    else return;
+
+
+    // then deal with insertion
     switch (this->mode) {
         // if mode is QueueMode
         case QueueMode:
@@ -47,15 +65,17 @@ CSPSolverImplementation::ARC CSPSolverImplementation::Frontier::pop()
             if (!unaryFrontier.empty()) {
                 returned = unaryFrontier.front();
                 unaryFrontier.pop();
-                return returned;
             // otherwise, we return a non-unary constraint
             } else {
                 returned = nonUnaryFrontier.front();
                 nonUnaryFrontier.pop();
-                return returned;
             }
         default:
             return returned;
     }
+
+    // finally track the fact that we just removed 'returned' from arc_is_in_frontier
+    arc_is_in_frontier[returned.generate_unique_string()] = false;
+    return returned;
     // might implement PriorityQueueMode as well
 };

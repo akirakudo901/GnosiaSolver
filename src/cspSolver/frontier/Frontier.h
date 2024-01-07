@@ -38,6 +38,8 @@ namespace CSPSolverImplementation
         std::queue<CSPSolverImplementation::ARC> unaryFrontier;
         // stores all non-unary constraints
         std::queue<CSPSolverImplementation::ARC> nonUnaryFrontier;
+        // this map tracks if an arc is already in frontier or not
+        std::unordered_map<std::string, bool> arc_is_in_frontier;
     };
 }
 

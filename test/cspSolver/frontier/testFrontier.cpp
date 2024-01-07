@@ -104,6 +104,30 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
             BOOST_CHECK_EQUAL(frontier.pop(), non_unary2);
         };
 
+        BOOST_AUTO_TEST_CASE(push_2_unary_2_non_unary_with_duplicate) {
+            // preconditions: check nothing is in the frontier
+            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            // setup: push two unary & two non-unary arcs
+            frontier.push(unary1); 
+            frontier.push(unary2); 
+            frontier.push(non_unary1); 
+            frontier.push(non_unary2); 
+            // test there are four entries in the frontier
+            BOOST_CHECK_EQUAL(frontier.size(), 4);
+
+            // test: then push the same arcs one more time
+            frontier.push(unary1); 
+            frontier.push(unary2); 
+            frontier.push(non_unary1); 
+            frontier.push(non_unary2); 
+            // test the pushed ones did not duplicate, but are in now
+            BOOST_CHECK_EQUAL(frontier.size(), 4);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary2);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary2);
+        };
+
     BOOST_AUTO_TEST_SUITE_END();
 
     // pop an arc that is an ARC struct from the frontier
