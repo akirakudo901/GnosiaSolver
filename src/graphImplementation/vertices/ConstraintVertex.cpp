@@ -25,7 +25,7 @@ GraphImplementation::ConstraintVertex::~ConstraintVertex()
 };
 
 // return whether the corresponding constraint is met given the variable vertices
-bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex> varList)
+bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex> varList) const
 {
     return this->pred(mainVal, varList);
 };

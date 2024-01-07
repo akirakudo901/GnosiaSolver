@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <iostream>
+#include <map>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -15,6 +16,7 @@
 #include "src/graphImplementation/Graph.h"
 #include "src/graphImplementation/vertices/ConstraintVertex.h"
 #include "src/graphImplementation/vertices/VariableVertex.h"
+#include "src/graphImplementation/vertices/Vertex.h"
 
 namespace CSPSolverImplementation
 {
@@ -33,7 +35,7 @@ namespace CSPSolverImplementation
         // given two names assumed adjacent vertices, return a tuple:
         // <name of variable, name of constraint, if such pair was found>
         std::tuple<std::string, std::string, bool> 
-        find_adjacent_vertex_pair_from_name(std::string name1, std::string name2);
+        find_adjacent_vertex_pair_from_name(std::string name1, std::string name2) const;
         
     public:
         CSPGraph();
@@ -44,7 +46,7 @@ namespace CSPSolverImplementation
         // returns a pointer to a variable vertex with the given name, or nullptr if it doesn't exist
         GraphImplementation::VariableVertex* get_variable(std::string name);
         // returns whether any vertex of given name is in the graph
-        bool contains_vertex(std::string name);
+        bool contains_vertex(std::string name) const;
         // return if vertices of given names are adjacent
         bool adjacent(std::string name1, std::string name2);
         // return all constraint neighbors of a variable vertex with given name
@@ -68,7 +70,22 @@ namespace CSPSolverImplementation
         // adds edge between given variable vertex and constraint vertex identified by name, if not there
         void add_edge(std::string vv_name, std::string cv_name);
         // removes edge between given variable vertex and constraint vertex identified by name, if there
-        void remove_edge(std::string vv_name, std::string cv_name);   
+        void remove_edge(std::string vv_name, std::string cv_name);
+
+        // getters
+        std::vector<std::string> get_all_constraint_names() const
+        {
+            auto returned = std::vector<std::string>();
+            for (auto kv_pair : cv_map) returned.push_back(kv_pair.first);
+            return returned;
+        };
+
+        std::vector<std::string> get_all_variable_names() const
+        {
+            auto returned = std::vector<std::string>();
+            for (auto kv_pair : vv_map) returned.push_back(kv_pair.first);
+            return returned;
+        };
 
         // overload << operator
         friend std::ostream& operator<<(std::ostream& os, const CSPGraph& g) {
@@ -77,12 +94,25 @@ namespace CSPSolverImplementation
             os << "All contained constraints.\n";
             os << "##########################\n";
             // Constraints first:
-            for (auto elem : g.cv_map) os << elem.second << "\n\n";
+            std::map<std::string, GraphImplementation::ConstraintVertex> sorted_cv_map;
+            // reinsert to sort
+            for (auto elem : g.cv_map) 
+                sorted_cv_map.insert(std::pair<std::string, GraphImplementation::ConstraintVertex>
+                                     (elem.first, elem.second));
+            // then print
+            for (auto elem : sorted_cv_map) os << elem.second << "\n";
+            
             // Variables next:
             os << "########################\n";
             os << "All contained variables.\n";
             os << "########################\n";
-            for (auto elem : g.vv_map) os << elem.second << "\n\n";
+            std::map<std::string, GraphImplementation::VariableVertex> sorted_vv_map;
+            // reinsert to sort
+            for (auto elem : g.vv_map) 
+                sorted_vv_map.insert(std::pair<std::string, GraphImplementation::VariableVertex>
+                                     (elem.first, elem.second));
+            // then print
+            for (auto elem : sorted_vv_map) os << elem.second << "\n";
             // then edges
             g.return_edge_list_in_ostream(os);
             return os;

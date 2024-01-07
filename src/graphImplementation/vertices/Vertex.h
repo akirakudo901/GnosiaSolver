@@ -22,6 +22,18 @@ namespace GraphImplementation
         virtual ~Vertex() = 0; // declare pure virtual destructor
         std::string getName() const { return this->name; };
 
+        // overloading ==
+        bool operator==(const Vertex& other) const
+        {
+            return (this->name == other.getName());
+        }
+
+        // overloading !=
+        bool operator!=(const Vertex& other) const
+        {
+            return (this->name != other.getName());
+        }
+        
         // overload operator<<
         friend std::ostream& operator<<(std::ostream& os, const Vertex& v) {
             os << "NAME: " << v.name;

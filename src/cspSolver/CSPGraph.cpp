@@ -48,7 +48,7 @@ GraphImplementation::VariableVertex* CSPSolverImplementation::CSPGraph::get_vari
 };
 
 // returns whether any vertex of given name is in the graph
-bool CSPSolverImplementation::CSPGraph::contains_vertex(std::string name)
+bool CSPSolverImplementation::CSPGraph::contains_vertex(std::string name) const
 {
     return (vv_map.find(name) != vv_map.end() || cv_map.find(name) != cv_map.end());
 };
@@ -68,7 +68,8 @@ bool CSPSolverImplementation::CSPGraph::adjacent(std::string name1, std::string 
 };
 
 // return all constraint neighbors of a variable vertex with given name
-std::vector<GraphImplementation::ConstraintVertex*> CSPSolverImplementation::CSPGraph::get_constraint_neighbors(std::string name)
+std::vector<GraphImplementation::ConstraintVertex*> 
+CSPSolverImplementation::CSPGraph::get_constraint_neighbors(std::string name)
 {
     // if there's no variable with given name, return an empty vector
     if (vv_map.find(name) == vv_map.end()) return std::vector<GraphImplementation::ConstraintVertex*>();
@@ -85,7 +86,8 @@ std::vector<GraphImplementation::ConstraintVertex*> CSPSolverImplementation::CSP
 };
 
 // return all variable neighbors of a constraint vertex with given name
-std::vector<GraphImplementation::VariableVertex*> CSPSolverImplementation::CSPGraph::get_variable_neighbors(std::string name)
+std::vector<GraphImplementation::VariableVertex*> 
+CSPSolverImplementation::CSPGraph::get_variable_neighbors(std::string name)
 {
     // if there's no constraint with given name, return an empty vector
     if (cv_map.find(name) == cv_map.end()) return std::vector<GraphImplementation::VariableVertex*>();
@@ -202,7 +204,7 @@ void CSPSolverImplementation::CSPGraph::remove_edge(std::string vv_name, std::st
 // given two names assumed adjacent vertices, return a tuple:
 // <name of variable, name of constraint, if such pair was found>
 std::tuple<std::string, std::string, bool> 
-CSPSolverImplementation::CSPGraph::find_adjacent_vertex_pair_from_name(std::string name1, std::string name2)
+CSPSolverImplementation::CSPGraph::find_adjacent_vertex_pair_from_name(std::string name1, std::string name2) const
 {
     std::string vv_name = "";
     std::string cv_name = "";

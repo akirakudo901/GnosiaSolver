@@ -10,6 +10,7 @@
 #ifndef GRAPHIMPLEMENTATION_GRAPH_H
 #define GRAPHIMPLEMENTATION_GRAPH_H
 
+#include <algorithm>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -41,11 +42,11 @@ namespace GraphImplementation
         ~Graph();
 
         // returns whether vertex x is in the graph
-        bool contains_vertex(Vertex& x);
+        bool contains_vertex(Vertex& x) const;
         // return if vertices x and y are adjacent
-        bool adjacent(Vertex& x, Vertex& y);
+        bool adjacent(Vertex& x, Vertex& y) const;
         // return all neighbors of vertex x
-        std::vector<Vertex*> neighbors(Vertex& x);
+        std::vector<Vertex*> neighbors(Vertex& x) const;
         // adds vertex x to the graph
         void add_vertex(Vertex& x);
         // removes vertex x if there, as well as edges connected to x

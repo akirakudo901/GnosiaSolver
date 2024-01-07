@@ -1,7 +1,10 @@
 // Author: Akira Kudo
 
 #include <algorithm>
+#include <map>
+#include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "src/graphImplementation/edges/Edge.h"
@@ -19,20 +22,20 @@ GraphImplementation::Graph::~Graph()
 };
 
 // returns whether vertex x is in the graph
-bool GraphImplementation::Graph::contains_vertex(Vertex& x)
+bool GraphImplementation::Graph::contains_vertex(Vertex& x) const
 {
     return (adjList.find(&x) != adjList.end());
 };
 
 // return if x and y are adjacent
-bool GraphImplementation::Graph::adjacent(Vertex& x, Vertex& y)
+bool GraphImplementation::Graph::adjacent(Vertex& x, Vertex& y) const
 {
     // if x or y aren't contained in graph, return false
     if (!contains_vertex(x) || !contains_vertex(y)) return false;
     // if x and y point to the same memory address, return false - we don't allow loops in the graph
     if (&x == &y) return false;
     // otherwise
-    std::vector<Vertex*> xAdjList = adjList[&x];
+    std::vector<Vertex*> xAdjList = adjList.at(&x);
     for (auto element : xAdjList)
     {
         if (element == &y) return true;
@@ -41,13 +44,13 @@ bool GraphImplementation::Graph::adjacent(Vertex& x, Vertex& y)
 };
 
 // return all neighbors of x
-std::vector<GraphImplementation::Vertex*> GraphImplementation::Graph::neighbors(Vertex& x)
+std::vector<GraphImplementation::Vertex*> GraphImplementation::Graph::neighbors(Vertex& x) const
 {
     // if x isn't in the graph yet, just return an empty vector
     if (!contains_vertex(x))
         return std::vector<Vertex*>();
     else 
-        return adjList[&x];
+        return adjList.at(&x);
 };
 
 // adds vertex x to G
@@ -113,13 +116,18 @@ std::ostream& GraphImplementation::Graph::return_edge_list_in_ostream(std::ostre
     os << "#######################\n";
     os << "All edges as edge list.\n";
     os << "#######################\n";
-    for (auto adjacency_list : adjList) {
-        auto main_node = adjacency_list.first;
-        auto adjacent_node_list = adjacency_list.second;
+    std::map<std::string, std::vector<Vertex*>> sorted_map;
+    // insert to map such that inserted items are sorted
+    for (auto adjacency_list : adjList) 
+        sorted_map.insert(std::pair<std::string, std::vector<Vertex*>>(
+            adjacency_list.first->getName(), adjacency_list.second
+        ));
+    // then print them
+    for (auto key_val_pair : sorted_map) {
         // first print the main node
-        os << " - " << main_node->getName() << ": ";
+        os << " - " << key_val_pair.first << ": ";
         // then print of the adjacent node names
-        for (auto node : adjacent_node_list) os << node->getName();
+        for (auto node : key_val_pair.second) os << node->getName() << " ";
         os << ".\n";
     }
     os << "\n";

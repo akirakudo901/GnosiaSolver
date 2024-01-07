@@ -31,7 +31,7 @@ namespace GraphImplementation
                              std::string description="This is the default description.");
             ~ConstraintVertex();
             // checks whether the constraint is met for mainVar given varList.
-            bool constraintIsMet(int mainVal, std::vector<VariableVertex> varList);
+            bool constraintIsMet(int mainVal, std::vector<VariableVertex> varList) const;
 
             // getters
             using Vertex::getName;

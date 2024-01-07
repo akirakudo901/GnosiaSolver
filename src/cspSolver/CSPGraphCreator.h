@@ -2,6 +2,9 @@
 // Description: A command line user interface implemented using the standard library.
 //  Allows the user to specify any graphs by interacting through the CLI.
 
+#ifndef CSPGRAPHCREATOR_H
+#define CSPGRAPHCREATOR_H
+
 #include <iostream>
 #include <string>
 
@@ -35,3 +38,4 @@ namespace CSPSolverImplementation
         void process(std::string const & line);
     };
 }
+#endif

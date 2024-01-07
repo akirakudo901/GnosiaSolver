@@ -32,13 +32,39 @@ namespace CSPSolverImplementation
         // overloading == so that we can use those in Boost tests
         bool operator==(const ARC& other) const
         {
-            if (!(this->main_var == other.main_var)) return false;
-            if (!(this->constraint == other.constraint)) return false;
-            if (!(this->other_var_list.size()== other.other_var_list.size())) return false;
-            for (size_t i=0; i < this->other_var_list.size(); i++) {
-                if (this->other_var_list[i] != other.other_var_list[i]) return false;
+            if (this->main_var != other.main_var) return false;
+            if (this->constraint != other.constraint) return false;
+            // elementwise check if we have the same domain
+            for (auto elem : this->other_var_list) {
+                bool was_found_in_other = false;
+                for (auto elem_other : other.other_var_list) {
+                    if (elem == elem_other) {
+                        was_found_in_other = true;
+                        break;
+                    }
+                }
+                if (!was_found_in_other) return false;
             }
             return true;
+        }
+
+        // overloading != as well
+        bool operator!=(const ARC& other) const
+        {
+            if (this->main_var != other.main_var) return true;
+            if (this->constraint != other.constraint) return true;
+            // elementwise check if we have the same domain
+            for (auto elem : this->other_var_list) {
+                bool was_found_in_other = false;
+                for (auto elem_other : other.other_var_list) {
+                    if (elem == elem_other) {
+                        was_found_in_other = true;
+                        break;
+                    }
+                }
+                if (!was_found_in_other) return true;
+            }
+            return false;
         }
         
         // overloading << so that we can use those in Boost tests
