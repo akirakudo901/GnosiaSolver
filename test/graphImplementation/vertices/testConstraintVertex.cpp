@@ -63,27 +63,27 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check whether constraint is met given two variables
                 // with cv0 (no variable can take 0)
                 // vv2 can take a non-0 value (1 / 2), hence condition is really checking for vv1
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv2}) == false); //first argument (vv1) can't be 0
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv2}) == true);  //but can be anything else
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv2}) == false); //first argument (vv1) can't be 0
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv2}) == true);  //but can be anything else
                 // vv3 can't take any value but 0, so no condition would fulfill a constraint involving vv3
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv3}) == false); //vv3 violates the constraint so none hold
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv3}) == false); //vv3 violates the constraint so none hold
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv3}) == false); //vv3 violates the constraint so none hold
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv3}) == false); //vv3 violates the constraint so none hold
 
                 // with cv1 (only one of two variables can take 0)
                 // vv2 can take a non-0 value (1 / 2), hence condition is really checking for vv1
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv2}) == true); //vv1 can be 0
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv2}) == true); //vv1 can also be anything else
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv2}) == true); //vv1 can be 0
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv2}) == true); //vv1 can also be anything else
                 // vv3 can't take any value but 0, so vv1 has to be something other than 0
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv3}) == false); //both vv1 and vv3 can't take the value 0
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv3}) == true); //if only vv3 takes the value 0, it's ok
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv3}) == false); //both vv1 and vv3 can't take the value 0
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv3}) == true); //if only vv3 takes the value 0, it's ok
 
                 // with cv2 (both of two variables can take 0)
                 // every combinations of value should be allowed for vv1, against either vv2 or vv3
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv2}) == true);
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv2}) == true);
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv2}) == true);
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv2}) == true);
                 
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv3}) == true);
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv3}) == true);
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv3}) == true);
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv3}) == true);
             };
 
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
@@ -111,27 +111,27 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (no variable can take 0) & cv1 (no variable can take 0)
                 // vv3, 4 have to take a 0 value, making the condition non-fulfillable for any value of vv1
-                BOOST_TEST(quinary_cv0.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv0.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv0.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv0.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
                 
-                BOOST_TEST(quinary_cv1.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv1.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv1.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv1.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
 
                 // with cv2 (two out of five variables can take 0)
                 // vv3, 4 have to take a 0 value, requiring vv1's value to be checked
-                BOOST_TEST(quinary_cv2.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false); //vv1 can't be 0
-                BOOST_TEST(quinary_cv2.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);  //but anything else
+                BOOST_TEST(quinary_cv2.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false); //vv1 can't be 0
+                BOOST_TEST(quinary_cv2.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);  //but anything else
 
                 // with cv3, cv4 and cv5
                 // vv1 can take any value!
-                BOOST_TEST(quinary_cv3.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv3.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv3.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv3.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
                 
-                BOOST_TEST(quinary_cv4.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv4.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv4.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv4.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
 
-                BOOST_TEST(quinary_cv5.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv5.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv5.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv5.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
                 
             };
 
@@ -183,27 +183,27 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check whether constraint is met given two variables
                 // with cv0 (we can have no 0s)
                 // any combination is really ok
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv2}) == true);
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv2}) == true);
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv2}) == true);
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv2}) == true);
                 
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv3}) == true);
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv3}) == true);
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv3}) == true);
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv3}) == true);
 
                 // with cv1 (at least one of two variables can take 0)
                 // vv2 can take 0 as value, hence vv1 doesn't really matter
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv2}) == true);
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv2}) == true);
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv2}) == true);
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv2}) == true);
                 // vv3 can't take any value but 1, so vv1 has to be 0
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv3}) == true);  //we have one 0 with vv1
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv3}) == false); //here, no variable can take the value 0
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv3}) == true);  //we have one 0 with vv1
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv3}) == false); //here, no variable can take the value 0
 
                 // with cv2 (both of two variables have to be able to take 0)
                 // vv2 can take 0 as value, hence condition is really checking for vv1
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv2}) == true);  //we can have two 0s here
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv2}) == false); //but not here 
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv2}) == true);  //we can have two 0s here
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv2}) == false); //but not here 
                 // vv3 can't take 0 as value, so no combination of vv1 and vv3 values fulfill the condition
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv3}) == false);
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv3}) == false);
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv3}) == false);
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv3}) == false);
             };
 
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
@@ -231,25 +231,25 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (we don't need any 0) ~ cv3 (3 variables have to be able to take 0)
                 // vv2, 3 and 4 can take a 0 value, making the condition fulfilled for any value of vv1
-                BOOST_TEST(quinary_cv0.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv0.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv0.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv0.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
                 
-                BOOST_TEST(quinary_cv1.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv1.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv1.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv1.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
 
-                BOOST_TEST(quinary_cv2.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv2.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv2.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv2.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
 
-                BOOST_TEST(quinary_cv3.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);
-                BOOST_TEST(quinary_cv3.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);
+                BOOST_TEST(quinary_cv3.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);
+                BOOST_TEST(quinary_cv3.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);
                 // with cv4 (4 variables have to be able to take 0)
                 // given vv5 can't take a 0 variable, and vv2, 3, 4 can, it depends on the value of vv1
-                BOOST_TEST(quinary_cv4.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true); //vv1 has to take 0
-                BOOST_TEST(quinary_cv4.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false); //so this is invalid
+                BOOST_TEST(quinary_cv4.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true); //vv1 has to take 0
+                BOOST_TEST(quinary_cv4.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false); //so this is invalid
                 // with cv5 (5 variables have to be able to take 0)
                 // we cannot have five 0s at the same time, so no combination is valid
-                BOOST_TEST(quinary_cv5.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv5.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv5.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv5.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
             };
 
         BOOST_AUTO_TEST_SUITE_END();
@@ -299,27 +299,27 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check whether constraint is met given two variables
                 // with cv0 (we can have no 0s)
                 // any combination involving being one 0 is not allowed
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv2}) == false); //one 0 exists, so not allowed
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv2}) == true);  //this is fine
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv2}) == false); //one 0 exists, so not allowed
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv2}) == true);  //this is fine
                 
-                BOOST_TEST(binary_cv0.constraintIsMet(0, {vv3}) == false); //one 0 exists, so not allowed
-                BOOST_TEST(binary_cv0.constraintIsMet(1, {vv3}) == true);  //this is fine
+                BOOST_TEST(binary_cv0.constraintIsMet(0, {&vv3}) == false); //one 0 exists, so not allowed
+                BOOST_TEST(binary_cv0.constraintIsMet(1, {&vv3}) == true);  //this is fine
 
                 // with cv1 (at least one of two variables can take 0)
                 // vv2 can take 0 as value, hence vv1 doesn't really matter
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv2}) == true);
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv2}) == true);
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv2}) == true);
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv2}) == true);
                 // vv3 can't take any value but 1, so vv1 has to be 0
-                BOOST_TEST(binary_cv1.constraintIsMet(0, {vv3}) == true);  //we have one 0 with vv1
-                BOOST_TEST(binary_cv1.constraintIsMet(1, {vv3}) == false); //here, no variable can take the value 0
+                BOOST_TEST(binary_cv1.constraintIsMet(0, {&vv3}) == true);  //we have one 0 with vv1
+                BOOST_TEST(binary_cv1.constraintIsMet(1, {&vv3}) == false); //here, no variable can take the value 0
 
                 // with cv2 (both of two variables have to be able to take 0)
                 // vv2 can take 0 as value, hence condition is really checking for vv1
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv2}) == true);  //we can have two 0s here
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv2}) == false); //but not here 
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv2}) == true);  //we can have two 0s here
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv2}) == false); //but not here 
                 // vv3 can't take 0 as value, so no combination of vv1 and vv3 values fulfill the condition
-                BOOST_TEST(binary_cv2.constraintIsMet(0, {vv3}) == false);
-                BOOST_TEST(binary_cv2.constraintIsMet(1, {vv3}) == false);
+                BOOST_TEST(binary_cv2.constraintIsMet(0, {&vv3}) == false);
+                BOOST_TEST(binary_cv2.constraintIsMet(1, {&vv3}) == false);
             };
 
             BOOST_AUTO_TEST_CASE(quinary_constraint) {
@@ -347,25 +347,25 @@ BOOST_AUTO_TEST_SUITE(ConstraintVertex_test_suite, * boost::unit_test::label("Co
                 // test: check which constraint and variable pairs are allowed
                 // with cv0 (we can't have any 0) ~ cv1 (exactly one variable has to be able to take 0)
                 // vv3 and 4 have to take a 0 value, making the condition unfulfilled for any value of vv1
-                BOOST_TEST(quinary_cv0.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv0.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv0.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv0.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
                 
-                BOOST_TEST(quinary_cv1.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv1.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv1.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv1.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
                 // with cv2 (exactly two variables have to be able to take 0)
-                BOOST_TEST(quinary_cv2.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false); //vv1 can't be 0
-                BOOST_TEST(quinary_cv2.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true);  //but anything else
+                BOOST_TEST(quinary_cv2.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false); //vv1 can't be 0
+                BOOST_TEST(quinary_cv2.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true);  //but anything else
                 // with cv3 (exactly three variables have to be able to take 0)
-                BOOST_TEST(quinary_cv3.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true); //vv1 taking a 0 value is ok
-                BOOST_TEST(quinary_cv3.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == true); //vv2 can also be the third 0 value instead
+                BOOST_TEST(quinary_cv3.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true); //vv1 taking a 0 value is ok
+                BOOST_TEST(quinary_cv3.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == true); //vv2 can also be the third 0 value instead
                 // with cv4 (exactlty four variables have to be able to take 0)
                 // given vv5 can't take a 0 variable, and vv2, 3, 4 can, it depends on the value of vv1
-                BOOST_TEST(quinary_cv4.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == true);  //vv1 has to take 0
-                BOOST_TEST(quinary_cv4.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false); //so this is invalid
+                BOOST_TEST(quinary_cv4.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == true);  //vv1 has to take 0
+                BOOST_TEST(quinary_cv4.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false); //so this is invalid
                 // with cv5 (exactlty five variables have to be able to take 0)
                 // we cannot have five 0s at the same time, so no combination is valid
-                BOOST_TEST(quinary_cv5.constraintIsMet(0, {vv2, vv3, vv4, vv5}) == false);
-                BOOST_TEST(quinary_cv5.constraintIsMet(1, {vv2, vv3, vv4, vv5}) == false);
+                BOOST_TEST(quinary_cv5.constraintIsMet(0, {&vv2, &vv3, &vv4, &vv5}) == false);
+                BOOST_TEST(quinary_cv5.constraintIsMet(1, {&vv2, &vv3, &vv4, &vv5}) == false);
             };
 
         BOOST_AUTO_TEST_SUITE_END();

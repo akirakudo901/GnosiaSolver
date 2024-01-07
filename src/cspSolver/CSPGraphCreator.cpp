@@ -160,7 +160,7 @@ void CSPGraphCreator::process(std::string const & line)
         case evAddConstraint:
         {
             std::string cv_name;
-            std::function<bool(int, std::vector<GraphImplementation::VariableVertex>)> pred;
+            std::function<bool(int, std::vector<GraphImplementation::VariableVertex*>)> pred;
             std::string description;
 
             int domain_val; int n;

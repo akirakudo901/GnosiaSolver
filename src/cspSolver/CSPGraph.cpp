@@ -15,14 +15,31 @@
 
 using GraphImplementation::ConstraintVertex, GraphImplementation::VariableVertex;
 
-CSPSolverImplementation::CSPGraph::CSPGraph() {
-
-};
-
-CSPSolverImplementation::CSPGraph::~CSPGraph()
+CSPSolverImplementation::CSPGraph::CSPGraph()
 {
+    
+}
 
-};
+CSPSolverImplementation::CSPGraph::CSPGraph(const CSPGraph& other)
+{
+    // copy vv_map & cv_map, hence keeping data for both cvs and vvs
+    this->cv_map = other.cv_map;
+    this->vv_map = other.vv_map;
+    // this breaks the link between maps and the adjacency list, hence:
+    // for each vv in vv_map within other, get their adjacency list
+    for (auto element : other.vv_map)
+    {
+        auto element_adjacency_list = other.adjList.at(&element.second);
+        // go through the list, which returns their adjacent cvs
+        for (auto cv : element_adjacency_list)
+        {
+            // add corresponding edges to the graph
+            this->add_edge(element.second.getName(), cv->getName());
+        }
+        // checking for adjacency on all variables is enough, as 
+        // constraints are only adjacent to variables in a CSPGraph
+    }
+}
 
 // returns a pointer to a constraint vertex with the given name, or nullptr if it doesn't exist
 GraphImplementation::ConstraintVertex* CSPSolverImplementation::CSPGraph::get_constraint(std::string name)
@@ -108,7 +125,7 @@ CSPSolverImplementation::CSPGraph::get_variable_neighbors(std::string name)
 //   even when the older one was a VariableVertex
 void CSPSolverImplementation::CSPGraph::add_constraint(
     std::string name, 
-    std::function<bool(int, std::vector<GraphImplementation::VariableVertex>)> pred,
+    std::function<bool(int, std::vector<GraphImplementation::VariableVertex*>)> pred,
     std::string description)
 {
     // first check for any existing vertex with the same name, and if there is, do nothing

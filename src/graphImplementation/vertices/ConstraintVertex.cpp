@@ -12,7 +12,7 @@ using std::function, std::vector, GraphImplementation::VariableVertex;
 
 GraphImplementation::ConstraintVertex::ConstraintVertex(
     std::string name, 
-    function<bool(int, vector<VariableVertex>)> pred,
+    function<bool(int, vector<VariableVertex*>)> pred,
     std::string description)
     : Vertex(name), pred(pred), description(description)
 {
@@ -25,7 +25,7 @@ GraphImplementation::ConstraintVertex::~ConstraintVertex()
 };
 
 // return whether the corresponding constraint is met given the variable vertices
-bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex> varList) const
+bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex*> varList) const
 {
     return this->pred(mainVal, varList);
 };
@@ -33,9 +33,10 @@ bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<
 // checks if given domains allow the existence of n or less of the checkedDomain value
 // e.g. checkedDomain = werewolf, n = 3: returns false if there has to be more than 
 //      3 werewolves in the mix, true otherwise
-function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::lesserOrEqualToN(int checkedDomain, int n) 
+function<bool(int, vector<VariableVertex*>)> 
+GraphImplementation::ConstraintVertex::lesserOrEqualToN(int checkedDomain, int n) 
 {
-    return [=] (int mainVal, vector<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex*> varList) {
         // keep count of the number of variables which value has to be checkedDomain
         int hasToBeCheckedDomain = 0;
 
@@ -44,7 +45,7 @@ function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVerte
         
         // otherwise, for every variable which domain is limited to checkedDomain, increment
         for (auto var : varList) {
-            auto vDomain = var.getDomain();
+            auto vDomain = var->getDomain();
             // if domain size is 1 and checkedDomain is in domain, that variable has to be checkedDomain
             if (vDomain.size() == 1 && vDomain.find(checkedDomain) != vDomain.end())
                 hasToBeCheckedDomain++;
@@ -59,9 +60,10 @@ function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVerte
 // checks if given domains allow the existence of n or more of the checkedDomain value
 // e.g. checkedDomain = werewolf, n = 3: returns false if there has to be less than 
 //      3 werewolves in the mix, true otherwise
-function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::greaterOrEqualToN(int checkedDomain, int n)
+function<bool(int, vector<VariableVertex*>)> 
+GraphImplementation::ConstraintVertex::greaterOrEqualToN(int checkedDomain, int n)
 {
-    return [=] (int mainVal, vector<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex*> varList) {
         // keep count of the number of variables which value can be checkedDomain
         int canBeCheckedDomain = 0;
 
@@ -70,7 +72,7 @@ function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVerte
         
         // otherwise, for every variable which domain includes checkedDomain, increment
         for (auto var : varList) {
-            auto vDomain = var.getDomain();
+            auto vDomain = var->getDomain();
             // if checkedDomain is in vDomain, increment canBeCheckedDomain
             if (vDomain.find(checkedDomain) != vDomain.end())
                 canBeCheckedDomain++;
@@ -85,9 +87,10 @@ function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVerte
 };
 
 // checks if given domains allow the existence of exactly n of the checkedDomain value
-function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, int n)
+function<bool(int, vector<VariableVertex*>)> 
+GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, int n)
 {
-    return [=] (int mainVal, vector<VariableVertex> varList) {
+    return [=] (int mainVal, vector<VariableVertex*> varList) {
         // count both the number of variables which value 'can be' / 'have to be' checkedDomain.
         int canBeCheckedDomain = 0;
         int hasToBeCheckedDomain = 0;
@@ -102,7 +105,7 @@ function<bool(int, vector<VariableVertex>)> GraphImplementation::ConstraintVerte
         // - for every variable which domain includes checkedDomain, increment canBeCheckedDomain
         // - for every variable which domain is limited to checkedDomain, increment hasToBeCheckedDomain
         for (auto var : varList) {
-            auto vDomain = var.getDomain();
+            auto vDomain = var->getDomain();
             // includes checkedDomain
             if (vDomain.find(checkedDomain) != vDomain.end()) {
                 canBeCheckedDomain++;

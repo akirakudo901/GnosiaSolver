@@ -39,7 +39,7 @@ namespace CSPSolverImplementation
         
     public:
         CSPGraph();
-        ~CSPGraph();
+        CSPGraph(const CSPGraph& other);
 
         // returns a pointer to a constraint vertex with the given name, or nullptr if it doesn't exist
         GraphImplementation::ConstraintVertex* get_constraint(std::string name);
@@ -58,7 +58,7 @@ namespace CSPSolverImplementation
         //   even when the older one was a VariableVertex
         void add_constraint(
             std::string name, 
-            std::function<bool(int, std::vector<GraphImplementation::VariableVertex>)> pred,
+            std::function<bool(int, std::vector<GraphImplementation::VariableVertex*>)> pred,
             std::string description="This is the default description.");
         // adds a variable vertex with given name and domain to the graph
         // * Inserting vertex with existing name doesn't do anything,
