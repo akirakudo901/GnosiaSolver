@@ -31,24 +31,24 @@ namespace _unit_test_befriender
             solver.getAllToDoArcs(frontier, graph);
         }
 
-        static void singleArcConsistencyStep(CSPSolver& solver, CSPGraph graph, Frontier frontier)
+        static void singleArcConsistencyStep(CSPSolver& solver, CSPGraph& graph, Frontier& frontier)
         {
             solver.singleArcConsistencyStep(graph, frontier);
         }
 
         static std::tuple<std::vector<VariableVertex>, bool> checkAnswer(
-            CSPSolver& solver, const CSPGraph& graph
+            CSPSolver& solver, CSPGraph& graph
             )
         {
             return solver.checkAnswer(graph);
         };
 
-        static std::vector<CSPGraph> splitDomain(CSPSolver& solver, const CSPGraph& graph, VariableVertex* vv)
+        static std::vector<CSPGraph> splitDomain(CSPSolver& solver, CSPGraph& graph, VariableVertex* vv)
         {
             return solver.splitDomain(graph, vv);
         };
 
-        static void getAllCheckAgainArcs(CSPSolver& solver, Frontier& frontier, const CSPGraph& graph, const ARC& arc)
+        static void getAllCheckAgainArcs(CSPSolver& solver, Frontier& frontier, CSPGraph& graph, const ARC& arc)
         {
             solver.getAllCheckAgainArcs(frontier, graph, arc);
         }
@@ -62,13 +62,16 @@ namespace _unit_test_befriender
             std::sort(graph1_constraints.begin(), graph1_constraints.end());
             std::sort(graph2_constraints.begin(), graph2_constraints.end());
             if (graph1_constraints != graph2_constraints) return false;
+            
             // 2) both CSPGraph hold the same variables checkable with ==
             if (graph1.get_all_variable_names().size() != graph2.get_all_variable_names().size()) 
                 return false;
+
             for (std::string vv_name : graph2.get_all_variable_names()) {
-                // do check if those aren't nullptrs
-                if (graph1.get_variable(vv_name) == nullptr || 
-                    graph2.get_variable(vv_name) == nullptr) return false;
+                // check if vv_name in graph1 is a nullptr
+                // if it is, vv isn't contained in graph1
+                if (graph1.get_variable(vv_name) == nullptr) return false;
+                
                 VariableVertex vv_graph1 = *graph1.get_variable(vv_name);
                 VariableVertex vv_graph2 = *graph2.get_variable(vv_name);
                 if (vv_graph1 != vv_graph2) return false;
@@ -104,21 +107,21 @@ struct TestCSPSolver_Fixture
         cspg = CSPGraph();
         cspg.add_constraint("OnlyOne1", ConstraintVertex::exactlyN(1, 1), 
             "We can have only one 1 in the square.");
-        cspg.add_constraint("OnlyOne2", ConstraintVertex::exactlyN(1, 2), 
+        cspg.add_constraint("OnlyOne2", ConstraintVertex::exactlyN(2, 1), 
             "We can have only one 2 in the square.");
-        cspg.add_constraint("OnlyOne3", ConstraintVertex::exactlyN(1, 3), 
+        cspg.add_constraint("OnlyOne3", ConstraintVertex::exactlyN(3, 1), 
             "We can have only one 3 in the square.");
-        cspg.add_constraint("OnlyOne4", ConstraintVertex::exactlyN(1, 4), 
+        cspg.add_constraint("OnlyOne4", ConstraintVertex::exactlyN(4, 1), 
             "We can have only one 4 in the square.");
-        cspg.add_constraint("OnlyOne5", ConstraintVertex::exactlyN(1, 5), 
+        cspg.add_constraint("OnlyOne5", ConstraintVertex::exactlyN(5, 1), 
             "We can have only one 5 in the square.");
-        cspg.add_constraint("OnlyOne6", ConstraintVertex::exactlyN(1, 6), 
+        cspg.add_constraint("OnlyOne6", ConstraintVertex::exactlyN(6, 1), 
             "We can have only one 6 in the square.");
-        cspg.add_constraint("OnlyOne7", ConstraintVertex::exactlyN(1, 7), 
+        cspg.add_constraint("OnlyOne7", ConstraintVertex::exactlyN(7, 1), 
             "We can have only one 7 in the square.");
-        cspg.add_constraint("OnlyOne8", ConstraintVertex::exactlyN(1, 8), 
+        cspg.add_constraint("OnlyOne8", ConstraintVertex::exactlyN(8, 1), 
             "We can have only one 8 in the square.");
-        cspg.add_constraint("OnlyOne9", ConstraintVertex::exactlyN(1, 9), 
+        cspg.add_constraint("OnlyOne9", ConstraintVertex::exactlyN(9, 1), 
             "We can have only one 9 in the square.");
         
         cspg.add_variable("Square 1", {1,2,3,4,5,6,7,8,9});
@@ -171,278 +174,9 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
 
     BOOST_AUTO_TEST_SUITE_END();
 
-    // run arc consistency and return all possible answers
-    // std::vector<std::vector<GraphImplementation::VariableVertex>> arcConsistency(CSPGraph graph);
-    BOOST_AUTO_TEST_SUITE(arcConsistency, * boost::unit_test::label("arcConsistency"));
-
-        BOOST_AUTO_TEST_CASE(real_use_case1) {
-            // setup: create a sudoku puzzle with the following initialization.
-            /*
-            x'x'x|x'6'7|5'3'x  <- 1,2,3|2-1,2-2,2-3|3-1...
-            5'x'x|9'2'x|1'x'x     ...
-            x'4'x|x'x'x|x'7'x     ...
-            _________________     ___
-            x'x'x|x'x'9|2'x'x     4-1...
-            x'1'4|7'3'x|x'x'x
-            7'x'9|x'x'x|x'1'x
-            _________________     ___
-            x'3'x|x'x'x|x'2'6     7-1...
-            4'2'5|x'7'1|x'8'9
-            6'x'7|2'8'3|x'5'1
-            */
-            // first, remove all vertices
-            for (auto cv_name : cspg.get_all_constraint_names()) 
-                cspg.remove_vertex(cv_name);
-            for (auto vv_name : cspg.get_all_variable_names()) 
-                cspg.remove_vertex(vv_name);
-            // add variables
-            // each variable is of the name:
-            //  - "Square " + 'y position' + 'x position'
-            // e.g. right-top-most square is "Square 1-9", below is "Square 2-9", etc.
-            auto full_domain = std::set<int>({1,2,3,4,5,6,7,8,9});
-            for (int i=1; i < 10; i++) {
-                for (int j=1; j < 10; j++) {
-                    std::string vv_name = "Square " + std::to_string(i) + "-" + std::to_string(j);
-                    cspg.add_variable(vv_name, full_domain);
-                }
-            }
-            // first row
-            cspg.get_variable("Square 1-5")->removeFromDomain({1,2,3,4,5,  7,8,9});
-            cspg.get_variable("Square 1-6")->removeFromDomain({1,2,3,4,5,6  ,8,9});
-            cspg.get_variable("Square 1-7")->removeFromDomain({1,2,3,4,  6,7,8,9});
-            cspg.get_variable("Square 1-8")->removeFromDomain({1,2,  4,5,6,7,8,9});
-            // second row
-            cspg.get_variable("Square 2-1")->removeFromDomain({1,2,3,4,  6,7,8,9});
-            cspg.get_variable("Square 2-4")->removeFromDomain({1,2,3,4,5,6,7,8  });
-            cspg.get_variable("Square 2-5")->removeFromDomain({1,  3,4,5,6,7,8,9});
-            cspg.get_variable("Square 2-7")->removeFromDomain({  2,3,4,5,6,7,8,9});
-            // third row
-            cspg.get_variable("Square 3-2")->removeFromDomain({1,2,3,  5,6,7,8,9});
-            cspg.get_variable("Square 3-8")->removeFromDomain({1,2,3,4,5,6,  8,9});
-            // fourth row
-            cspg.get_variable("Square 4-6")->removeFromDomain({1,2,3,4,5,6,7,8  });
-            cspg.get_variable("Square 4-7")->removeFromDomain({1,  3,4,5,6,7,8,9});
-            // fifth row
-            cspg.get_variable("Square 5-2")->removeFromDomain({  2,3,4,5,6,7,8,9});
-            cspg.get_variable("Square 5-3")->removeFromDomain({1,2,3,  5,6,7,8,9});
-            cspg.get_variable("Square 5-4")->removeFromDomain({1,2,3,4,5,6,  8,9});
-            cspg.get_variable("Square 5-5")->removeFromDomain({1,2,  4,5,6,7,8,9});
-            // sixth row
-            cspg.get_variable("Square 6-1")->removeFromDomain({1,2,3,4,5,6,  8,9});
-            cspg.get_variable("Square 6-3")->removeFromDomain({1,2,3,4,5,6,7,8  });
-            cspg.get_variable("Square 6-8")->removeFromDomain({  2,3,4,5,6,7,8,9});
-            // seventh row
-            cspg.get_variable("Square 7-2")->removeFromDomain({1,2,  4,5,6,7,8,9});
-            cspg.get_variable("Square 7-8")->removeFromDomain({1,  3,4,5,6,7,8,9});
-            cspg.get_variable("Square 7-9")->removeFromDomain({1,2,3,4,5,  7,8,9});
-            // eith row
-            cspg.get_variable("Square 8-1")->removeFromDomain({1,2,3,  5,6,7,8,9});
-            cspg.get_variable("Square 8-2")->removeFromDomain({1,  3,4,5,6,7,8,9});
-            cspg.get_variable("Square 8-3")->removeFromDomain({1,2,3,4,  6,7,8,9});
-            cspg.get_variable("Square 8-5")->removeFromDomain({1,2,3,4,5,6,  8,9});
-            cspg.get_variable("Square 8-6")->removeFromDomain({  2,3,4,5,6,7,8,9});
-            cspg.get_variable("Square 8-8")->removeFromDomain({1,2,3,4,5,6,7,  9});
-            cspg.get_variable("Square 8-9")->removeFromDomain({1,2,3,4,5,6,7,8  });
-            // nineth row
-            cspg.get_variable("Square 9-1")->removeFromDomain({1,2,3,4,5,  7,8,9});
-            cspg.get_variable("Square 9-3")->removeFromDomain({1,2,3,4,5,6,  8,9});
-            cspg.get_variable("Square 9-4")->removeFromDomain({1,  3,4,5,6,7,8,9});
-            cspg.get_variable("Square 9-5")->removeFromDomain({1,2,3,4,5,6,7,  9});
-            cspg.get_variable("Square 9-6")->removeFromDomain({1,2,  4,5,6,7,8,9});
-            cspg.get_variable("Square 9-8")->removeFromDomain({1,2,3,4,  6,7,8,9});
-            cspg.get_variable("Square 9-9")->removeFromDomain({  2,3,4,5,6,7,8,9});
-
-            // add constraints
-            // each constraint is of the name:
-            //  - "OnlyOne" + i + 'type of constraint' + 'position'
-            // e.g. constraint on 3 in right-most column: "OnlyOne3-col-9"
-            // others would be "OnlyOne5-row-4", "OnlyOne8-squ-3".
-            for (int check_num=1; check_num < 10; check_num++) {
-                for (int pos_num=1; pos_num < 10; pos_num++) {
-                    for (std::string type : {"row", "col", "squ"}) {
-                        std::string cv_name = ("OnlyOne" + std::to_string(check_num) + "-" + 
-                                               type + "-" + std::to_string(pos_num));
-                        cspg.add_constraint(cv_name, ConstraintVertex::exactlyN(1, check_num), 
-                                            ("We can have only one " + std::to_string(check_num) + 
-                                             " in " + type + " " + std::to_string(pos_num) + "."));
-
-                        // 'Square x-y'
-                        if (type == "row") {
-                            for (int col_num=1; col_num < 10; col_num++) {
-                                std::string vv_name = "Square " + std::to_string(pos_num) + 
-                                                      "-" + std::to_string(col_num); 
-                                cspg.add_edge(vv_name, cv_name);
-                            }
-                        } else if (type == "col") {
-                            for (int row_num=1; row_num < 10; row_num++) {
-                                std::string vv_name = "Square " + std::to_string(row_num) + 
-                                                      "-" + std::to_string(pos_num); 
-                                cspg.add_edge(vv_name, cv_name);
-                            }
-                        } else if (type == "squ") {
-                            /*
-                            given the "pos_num" th square, which "Square" variables does this correspond to?
-                            first, within the 3x3 grid composed by the 9 squares, for square pos_num:
-                             1) row number is Floor((pos_num - 1) / 3) + 1.
-                             2) column number is (pos_num - 1) % 3 + 1.
-                            then, for each such square, we have 9 internal "Square" belonging to it.
-                            For those squares determined uniquely by (x, y):
-                             - x corresponds to (column number - 1)*3 + 1 ~ (column number) * 3
-                               e.g. square 1 -> x = 1~3, square 2 -> x = 4~6
-                             - y corresponds to (row number - 1)*3 + 1 ~ (row number)*3
-                               e.g. square 1 -> y = 1~3, square 4 -> y = 4~6
-                            
-                            1: 1-1~3-3  2: 1-4~3-6  3: 1-7~3-9
-                            4: 4-1~6-3  5: 4-4~6-6  6: 4-7~6-9
-                            7: 7-1~9-3  8: 7-4~9-6  9: 7-7~9-9
-                            */ 
-                            int row_number = (pos_num - 1) / 3 + 1; //integer division rounds towards 0
-                            int col_number = (pos_num - 1) % 3 + 1;
-                            for (int x=(col_number - 1) * 3 + 1; x <= col_number * 3; x++) {
-                                for (int y=(row_number - 1) * 3 + 1; y <= row_number * 3; y++) {
-                                    std::string vv_name = "Square " + std::to_string(y) + 
-                                                        "-" + std::to_string(x);
-                                    cspg.add_edge(vv_name, cv_name);
-                                } 
-                            }
-                        }
-                    }
-                }
-            }
-
-            // If interested, we can visualize this
-            // std::cout << "PRINTING CSPGRAPH FROM SUDOKU" << std::endl;
-            // std::cout << cspg;
-
-            // call arcConsistency
-            auto answers = solver.arcConsistency(cspg);
-            //guard against empty vector
-            BOOST_REQUIRE_EQUAL(answers.size(), 1);
-            auto actual_answer = answers[0];
-
-            // test: test that we get the correct answer
-            /*
-            ANSWER:
-            9'8'2|1'6'7|5'3'4
-            5'7'3|9'2'4|1'6'8
-            1'4'6|3'5'8|9'7'2
-            _________________
-            3'6'8|5'1'9|2'4'7
-            2'1'4|7'3'6|8'9'5
-            7'5'9|8'4'2|6'1'3
-            _________________
-            8'3'1|4'9'5|7'2'6
-            4'2'5|6'7'1|3'8'9
-            6'9'7|2'8'3|4'5'1
-            */
-            std::vector<VariableVertex> expected_answer;
-            // first row
-            expected_answer.push_back(VariableVertex("Square 1-1", {9}));
-            expected_answer.push_back(VariableVertex("Square 1-2", {8}));
-            expected_answer.push_back(VariableVertex("Square 1-3", {2}));
-            expected_answer.push_back(VariableVertex("Square 1-4", {1}));
-            expected_answer.push_back(VariableVertex("Square 1-5", {6}));
-            expected_answer.push_back(VariableVertex("Square 1-6", {7}));
-            expected_answer.push_back(VariableVertex("Square 1-7", {5}));
-            expected_answer.push_back(VariableVertex("Square 1-8", {3}));
-            expected_answer.push_back(VariableVertex("Square 1-9", {4})); 
-            // second row
-            expected_answer.push_back(VariableVertex("Square 2-1", {5}));
-            expected_answer.push_back(VariableVertex("Square 2-2", {7}));
-            expected_answer.push_back(VariableVertex("Square 2-3", {3}));
-            expected_answer.push_back(VariableVertex("Square 2-4", {9}));
-            expected_answer.push_back(VariableVertex("Square 2-5", {2}));
-            expected_answer.push_back(VariableVertex("Square 2-6", {4}));
-            expected_answer.push_back(VariableVertex("Square 2-7", {1}));
-            expected_answer.push_back(VariableVertex("Square 2-8", {6}));
-            expected_answer.push_back(VariableVertex("Square 2-9", {8})); 
-            // third row
-            expected_answer.push_back(VariableVertex("Square 3-1", {1}));
-            expected_answer.push_back(VariableVertex("Square 3-2", {4}));
-            expected_answer.push_back(VariableVertex("Square 3-3", {6}));
-            expected_answer.push_back(VariableVertex("Square 3-4", {3}));
-            expected_answer.push_back(VariableVertex("Square 3-5", {5}));
-            expected_answer.push_back(VariableVertex("Square 3-6", {8}));
-            expected_answer.push_back(VariableVertex("Square 3-7", {9}));
-            expected_answer.push_back(VariableVertex("Square 3-8", {7}));
-            expected_answer.push_back(VariableVertex("Square 3-9", {2})); 
-            // fourth row
-            expected_answer.push_back(VariableVertex("Square 4-1", {3}));
-            expected_answer.push_back(VariableVertex("Square 4-2", {6}));
-            expected_answer.push_back(VariableVertex("Square 4-3", {8}));
-            expected_answer.push_back(VariableVertex("Square 4-4", {5}));
-            expected_answer.push_back(VariableVertex("Square 4-5", {1}));
-            expected_answer.push_back(VariableVertex("Square 4-6", {9}));
-            expected_answer.push_back(VariableVertex("Square 4-7", {2}));
-            expected_answer.push_back(VariableVertex("Square 4-8", {4}));
-            expected_answer.push_back(VariableVertex("Square 4-9", {7})); 
-            // fifth row
-            expected_answer.push_back(VariableVertex("Square 5-1", {2}));
-            expected_answer.push_back(VariableVertex("Square 5-2", {1}));
-            expected_answer.push_back(VariableVertex("Square 5-3", {4}));
-            expected_answer.push_back(VariableVertex("Square 5-4", {7}));
-            expected_answer.push_back(VariableVertex("Square 5-5", {3}));
-            expected_answer.push_back(VariableVertex("Square 5-6", {6}));
-            expected_answer.push_back(VariableVertex("Square 5-7", {8}));
-            expected_answer.push_back(VariableVertex("Square 5-8", {9}));
-            expected_answer.push_back(VariableVertex("Square 5-9", {5})); 
-            // sixth row
-            expected_answer.push_back(VariableVertex("Square 6-1", {7}));
-            expected_answer.push_back(VariableVertex("Square 6-2", {5}));
-            expected_answer.push_back(VariableVertex("Square 6-3", {9}));
-            expected_answer.push_back(VariableVertex("Square 6-4", {8}));
-            expected_answer.push_back(VariableVertex("Square 6-5", {4}));
-            expected_answer.push_back(VariableVertex("Square 6-6", {2}));
-            expected_answer.push_back(VariableVertex("Square 6-7", {6}));
-            expected_answer.push_back(VariableVertex("Square 6-8", {1}));
-            expected_answer.push_back(VariableVertex("Square 6-9", {3})); 
-            // seventh row
-            expected_answer.push_back(VariableVertex("Square 7-1", {8}));
-            expected_answer.push_back(VariableVertex("Square 7-2", {3}));
-            expected_answer.push_back(VariableVertex("Square 7-3", {1}));
-            expected_answer.push_back(VariableVertex("Square 7-4", {4}));
-            expected_answer.push_back(VariableVertex("Square 7-5", {9}));
-            expected_answer.push_back(VariableVertex("Square 7-6", {5}));
-            expected_answer.push_back(VariableVertex("Square 7-7", {7}));
-            expected_answer.push_back(VariableVertex("Square 7-8", {2}));
-            expected_answer.push_back(VariableVertex("Square 7-9", {6})); 
-            // eith row
-            expected_answer.push_back(VariableVertex("Square 8-1", {4}));
-            expected_answer.push_back(VariableVertex("Square 8-2", {2}));
-            expected_answer.push_back(VariableVertex("Square 8-3", {5}));
-            expected_answer.push_back(VariableVertex("Square 8-4", {6}));
-            expected_answer.push_back(VariableVertex("Square 8-5", {7}));
-            expected_answer.push_back(VariableVertex("Square 8-6", {1}));
-            expected_answer.push_back(VariableVertex("Square 8-7", {3}));
-            expected_answer.push_back(VariableVertex("Square 8-8", {8}));
-            expected_answer.push_back(VariableVertex("Square 8-9", {9})); 
-            // nineth row
-            expected_answer.push_back(VariableVertex("Square 9-1", {6}));
-            expected_answer.push_back(VariableVertex("Square 9-2", {9}));
-            expected_answer.push_back(VariableVertex("Square 9-3", {7}));
-            expected_answer.push_back(VariableVertex("Square 9-4", {2}));
-            expected_answer.push_back(VariableVertex("Square 9-5", {8}));
-            expected_answer.push_back(VariableVertex("Square 9-6", {3}));
-            expected_answer.push_back(VariableVertex("Square 9-7", {4}));
-            expected_answer.push_back(VariableVertex("Square 9-8", {5}));
-            expected_answer.push_back(VariableVertex("Square 9-9", {1})); 
-            
-            // sort both the answer and expected variables based on order of variable name
-            auto first_variable_vertex_is_smaller_by_name = [] 
-            (VariableVertex vv1, VariableVertex vv2) 
-            {
-                return vv1.getName() < vv2.getName();
-            };
-            std::sort(expected_answer.begin(), expected_answer.end(), 
-                      first_variable_vertex_is_smaller_by_name);
-            std::sort(actual_answer.begin(), actual_answer.end(), 
-                      first_variable_vertex_is_smaller_by_name);
-            // finally compare the expected and actual answer
-            BOOST_CHECK_EQUAL_COLLECTIONS(expected_answer.begin(), expected_answer.end(),
-                                            actual_answer.begin(),   actual_answer.end());
-        }
-
-    BOOST_AUTO_TEST_SUITE_END();
+    // #########################################################################
+    // arcConsistency test is at the bottom in order to use a new test fiture
+    // #########################################################################
 
     // run DFS with pruning and return all possible answers
     // std::vector<std::vector<GraphImplementation::VariableVertex>> depthFirstSearchWithPruning(CSPGraph graph);
@@ -892,6 +626,10 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             // test: check that running singleArcConsistencyStep yields no change
             CSPGraph expectedCSPG = cspg;
             Frontier expectedFrontier = frontier;
+            bool _2_cspg_are_identical = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
+                cspg, expectedCSPG
+            );
+            BOOST_TEST(_2_cspg_are_identical);
             _unit_test_befriender::TestBefriender::singleArcConsistencyStep(solver, cspg, frontier);
             // compare based on a self-defined function for testing
             bool cspg_are_identical = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
@@ -1079,17 +817,20 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             ARC arc_found_in_frontier = frontier.pop();
             BOOST_TEST(arc_found_in_frontier != arc1);
 
+            // check that arc_found_in_frontier is arc2, which was right behind arc1
+            BOOST_CHECK_EQUAL(arc_found_in_frontier, arc2);
+
+            // also check that the arc behind arc2 is an expected one generated
             ARC expected_arc; 
             expected_arc.main_var = cspg.get_variable("Square 2");
             expected_arc.other_var_list = std::vector<VariableVertex*>({cspg.get_variable("Square 1")});
             expected_arc.constraint = cspg.get_constraint("OnlyOne2");
 
-            BOOST_CHECK_EQUAL(expected_arc, arc_found_in_frontier);
-            // also check that arc2 is right behind this
             arc_found_in_frontier = frontier.pop();
             BOOST_TEST(arc_found_in_frontier != arc1);
-            BOOST_CHECK_EQUAL(arc2, arc_found_in_frontier);
-            
+            BOOST_TEST(arc_found_in_frontier != arc2);
+            BOOST_CHECK_EQUAL(arc_found_in_frontier, expected_arc);
+                        
             // check that "Square 1" has no more value 9 in its domain
             std::set<int> expected_dom {1,2,3,4,5,6,7,8};
             
@@ -1097,9 +838,11 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             BOOST_TEST_REQUIRE(cspg.contains_vertex("Square 1"));
 
             auto actual_dom = cspg.get_variable("Square 1")->getDomain();
-            BOOST_CHECK_EQUAL_COLLECTIONS(expected_dom.begin(), expected_dom.end(), actual_dom.begin(), actual_dom.end());
+            BOOST_CHECK_EQUAL_COLLECTIONS(expected_dom.begin(), expected_dom.end(), 
+                                          actual_dom.begin(), actual_dom.end());
             
-            // remove the value 9 from the expected graph's domain, then compare based on a self-defined function for testing
+            // remove the value 9 from the expected graph's domain
+            // then compare based on a self-defined function for testing
             
             // guard against when "Square 1" is a nullptr
             BOOST_TEST_REQUIRE(cspg.contains_vertex("Square 1"));
@@ -1131,6 +874,11 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
 
             // then add back a Square 9 variable with no domain
             cspg.add_variable("Square 9", {});
+
+            // also add a couple edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
+
             
             // test: run checkAnswer to see that we have no solutions
             auto actual_result = _unit_test_befriender::TestBefriender::checkAnswer(solver, cspg);
@@ -1152,8 +900,12 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             for (int i=0; i < 9; i++) {
                 auto name = variable_names[i];
                 cspg.remove_vertex(name);
-                cspg.add_variable(name, {i});
+                cspg.add_variable(name, {i+1});
             }
+
+            // also add a couple edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
             
             // test: run checkAnswer to see that we have a unique solution
             auto actual_result = _unit_test_befriender::TestBefriender::checkAnswer(solver, cspg);
@@ -1181,6 +933,9 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
 
         BOOST_AUTO_TEST_CASE(indeterminate) {
             // let the default graph state (every variable have max domain) be used
+            // also add a couple edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
 
             // test: run checkAnswer to see that we have an indeterminate solution
             auto actual_result = _unit_test_befriender::TestBefriender::checkAnswer(solver, cspg);
@@ -1207,7 +962,7 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
                   actual_answer.begin(),   actual_answer.end()
             );
             // second entry should be false, indicating result is again indefinite
-            BOOST_TEST(std::get<1>(actual_result));
+            BOOST_TEST(!std::get<1>(actual_result));
         }
 
     BOOST_AUTO_TEST_SUITE_END();
@@ -1225,6 +980,10 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             // then add back a Square 9 variable with no domain
             cspg.add_variable("Square 9", {});
 
+            // also add a couple edges to check that splitting domains preserves edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
+
             // test: check that running splitDomain yields no result (empty vector of CSPGraph)
             auto actual_result = _unit_test_befriender::TestBefriender::splitDomain(solver, cspg, cspg.get_variable("Square 9"));
             BOOST_TEST(actual_result.empty());
@@ -1238,6 +997,10 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
 
             // then add back a Square 9 variable with a single domain 9
             cspg.add_variable("Square 9", {9});
+
+            // also add a couple edges to check that splitting domains preserves edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
 
             // test: check that running splitDomain yields a single result (identical graph)
             auto actual_result = _unit_test_befriender::TestBefriender::splitDomain(solver, cspg, cspg.get_variable("Square 9"));
@@ -1259,9 +1022,13 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             // then add back a Square 9 variable with two values 1, 9
             cspg.add_variable("Square 9", {1, 9});
 
+            // also add a couple edges to check that splitting domains preserves edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
+
             // test: check that running splitDomain yields two results where Square 9 has value 1 and 9
             auto actual_result = _unit_test_befriender::TestBefriender::splitDomain(solver, cspg, cspg.get_variable("Square 9"));
-            // guard against vector of non-size 2
+            // guard against vector that aren't size 2
             BOOST_REQUIRE_EQUAL(actual_result.size(), 2);
             auto result_graph1 = actual_result[0]; auto result_graph2 = actual_result[1];
            
@@ -1270,26 +1037,30 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             bool graph1_is_as_expected; bool graph2_is_as_expected;
             // we use our specifically defined function
             auto graph1_domain = result_graph1.get_variable("Square 9")->getDomain();
+            
+            // if graph1's Square 9 holds 1 as domain value
             if (graph1_domain.find(1) != graph1_domain.end()) {
+                // check that graph1 is identical to a version where Square 9 only holds 1
                 graph1_is_as_expected = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
                     exp_graph_dom_1, result_graph1
                 );
+                // in this case, graph2's Square 9 should only hold 9
+                graph2_is_as_expected = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
+                    exp_graph_dom_9, result_graph2
+                );
+
+            // else if graph1's Square 9 holds 9 as domain value
             } else if (graph1_domain.find(9) != graph1_domain.end()) {
+                // check that graph1 is identical to a version where Square 9 only holds 9
                 graph1_is_as_expected = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
                     exp_graph_dom_9, result_graph1
                 );
-            }
-            // also check graph2
-            auto graph2_domain = result_graph2.get_variable("Square 9")->getDomain();
-            if (graph2_domain.find(1) != graph2_domain.end()) {
+                // in this case, graph2's Square 9 should only hold 1
                 graph2_is_as_expected = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
                     exp_graph_dom_1, result_graph2
                 );
-            } else if (graph2_domain.find(9) != graph2_domain.end()) {
-                graph1_is_as_expected = _unit_test_befriender::TestBefriender::compareCSPGraphBasedOnVariablesAndConstraintNames(
-                    exp_graph_dom_9, result_graph2
-                );
             }
+
             // finally check for equality
             BOOST_TEST((graph1_is_as_expected && graph2_is_as_expected));
         }
@@ -1302,6 +1073,10 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
 
             // then add back a Square 9 variable with three values 1,5,9
             cspg.add_variable("Square 9", {1,5,9});
+
+            // also add a couple edges to check that splitting domains preserves edges
+            cspg.add_edge("Square 1", "OnlyOne3");
+            cspg.add_edge("Square 9", "OnlyOne9");
 
             // test: check that running splitDomain yields three results where Square 9 has value 1, 5 and 9 each
             auto actual_result = _unit_test_befriender::TestBefriender::splitDomain(solver, cspg, cspg.get_variable("Square 9"));
@@ -1364,6 +1139,717 @@ BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite, TestCSPSolver_Fixture, * boost::u
             }
             // finally check for equality
             BOOST_TEST((graph1_is_as_expected && graph2_is_as_expected && graph3_is_as_expected));
+        }
+
+    BOOST_AUTO_TEST_SUITE_END();
+
+BOOST_AUTO_TEST_SUITE_END();
+
+struct TestCSPSolver_ArcConsistency_Fixture
+{
+    CSPGraph sudoku_graph;
+    Frontier frontier = Frontier(Frontier::QueueMode);
+    CSPSolver solver;
+    
+    TestCSPSolver_ArcConsistency_Fixture()
+    {
+        frontier = Frontier(Frontier::QueueMode);
+        solver = CSPSolver();
+
+        // let's emulate sudoku
+        sudoku_graph = CSPGraph();
+
+        // add variables
+        // each variable is of the name:
+        //  - "Square " + 'y position' + 'x position'
+        // e.g. right-top-most square is "Square 1-9", below is "Square 2-9", etc.
+        auto full_domain = std::set<int>({1,2,3,4,5,6,7,8,9});
+        for (int i=1; i < 10; i++) {
+            for (int j=1; j < 10; j++) {
+                std::string vv_name = "Square " + std::to_string(i) + "-" + std::to_string(j);
+                sudoku_graph.add_variable(vv_name, full_domain);
+            }
+        }
+
+        // add constraints
+        // each constraint is of the name:
+        //  - "OnlyOne" + i + 'type of constraint' + 'position'
+        // e.g. constraint on 3 in right-most column: "OnlyOne3-col-9"
+        // others would be "OnlyOne5-row-4", "OnlyOne8-squ-3".
+        for (int check_num=1; check_num < 10; check_num++) {
+            for (int pos_num=1; pos_num < 10; pos_num++) {
+                for (std::string type : {"row", "col", "squ"}) {
+                    std::string cv_name = ("OnlyOne" + std::to_string(check_num) + "-" + 
+                                            type + "-" + std::to_string(pos_num));
+                    sudoku_graph.add_constraint(cv_name, ConstraintVertex::exactlyN(check_num, 1), 
+                                                ("We can have only one " + std::to_string(check_num) + 
+                                                    " in " + type + " " + std::to_string(pos_num) + "."));
+
+                    // 'Square x-y'
+                    if (type == "row") {
+                        for (int col_num=1; col_num < 10; col_num++) {
+                            std::string vv_name = "Square " + std::to_string(pos_num) + 
+                                                    "-" + std::to_string(col_num); 
+                            sudoku_graph.add_edge(vv_name, cv_name);
+                        }
+                    } else if (type == "col") {
+                        for (int row_num=1; row_num < 10; row_num++) {
+                            std::string vv_name = "Square " + std::to_string(row_num) + 
+                                                    "-" + std::to_string(pos_num); 
+                            sudoku_graph.add_edge(vv_name, cv_name);
+                        }
+                    } else if (type == "squ") {
+                        /*
+                        given the "pos_num" th square, which "Square" variables does this correspond to?
+                        first, within the 3x3 grid composed by the 9 squares, for square pos_num:
+                            1) row number is Floor((pos_num - 1) / 3) + 1.
+                            2) column number is (pos_num - 1) % 3 + 1.
+                        then, for each such square, we have 9 internal "Square" belonging to it.
+                        For those squares determined uniquely by (x, y):
+                            - x corresponds to (column number - 1)*3 + 1 ~ (column number) * 3
+                            e.g. square 1 -> x = 1~3, square 2 -> x = 4~6
+                            - y corresponds to (row number - 1)*3 + 1 ~ (row number)*3
+                            e.g. square 1 -> y = 1~3, square 4 -> y = 4~6
+                        
+                        1: 1-1~3-3  2: 1-4~3-6  3: 1-7~3-9
+                        4: 4-1~6-3  5: 4-4~6-6  6: 4-7~6-9
+                        7: 7-1~9-3  8: 7-4~9-6  9: 7-7~9-9
+                        */ 
+                        int row_number = (pos_num - 1) / 3 + 1; //integer division rounds towards 0
+                        int col_number = (pos_num - 1) % 3 + 1;
+                        for (int x=(col_number - 1) * 3 + 1; x <= col_number * 3; x++) {
+                            for (int y=(row_number - 1) * 3 + 1; y <= row_number * 3; y++) {
+                                std::string vv_name = "Square " + std::to_string(y) + 
+                                                    "-" + std::to_string(x);
+                                sudoku_graph.add_edge(vv_name, cv_name);
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+
+        // also check that the problem is well setup
+        for (int x=1; x < 10; x++) {
+            for (int y=1; y < 10; y++)
+            {
+                // test existence of all variables
+                BOOST_TEST_REQUIRE(sudoku_graph.contains_vertex("Square " + 
+                    std::to_string(y) + "-" + std::to_string(x)));
+                
+                // test existence of all constraints
+                for (std::string type : {"col", "row", "squ"})
+                {
+                    BOOST_TEST(sudoku_graph.contains_vertex("OnlyOne" + 
+                            std::to_string(y) + "-" + type + "-" + 
+                            std::to_string(x)));
+                }
+            }
+        }
+        // check the number of constraints & variables
+        // (9*9=) 81 variables
+        BOOST_REQUIRE_EQUAL(sudoku_graph.get_all_variable_names().size(), 81);
+        // (9*9*3=) 243 constraints
+        BOOST_REQUIRE_EQUAL(sudoku_graph.get_all_constraint_names().size(), 243);
+        // unsure of how to check for exact edges that exist other than brute force, and am lazy :P
+        // we expect (243*9=) 2187 arcs to be checked
+        Frontier check_num_arc_f = Frontier(Frontier::QueueMode);
+        _unit_test_befriender::TestBefriender::getAllToDoArcs(solver, sudoku_graph, check_num_arc_f);
+        BOOST_TEST_REQUIRE(check_num_arc_f.size(), 243*9);
+    };
+
+    ~TestCSPSolver_ArcConsistency_Fixture()
+    {};
+
+    void print_sudoku(CSPGraph& graph)
+    {
+        std::vector<VariableVertex*> non_unique_domains;
+
+        for (int y=1; y < 10; y++)
+        {
+            for (int x=1; x < 10; x++)
+            {
+                std::string vv_name = "Square " + std::to_string(y) + 
+                                        "-" + std::to_string(x);
+                auto var_domain = graph.get_variable(vv_name)->getDomain();
+                // determine the printed symbol
+                std::string symbol;
+                if (var_domain.size() == 0) symbol = "x";
+                else if (var_domain.size() == 1) symbol = std::to_string(*var_domain.begin());
+                else 
+                {
+                    symbol = " ";
+                    non_unique_domains.push_back(graph.get_variable(vv_name));
+                }
+
+                std::cout << symbol << "|";
+                if (x % 3 == 0) std::cout << "|";
+            }
+            std::cout << std::endl;
+            if (y % 3 == 0) std::cout << "_____________________" << std::endl;
+        }
+        std::sort(non_unique_domains.begin(), non_unique_domains.end(),
+        [] (VariableVertex* vv1, VariableVertex* vv2)
+        {
+            return vv1->getName() < vv2->getName();
+        });
+        std::cout << "Variables with undetermined domains:" << std::endl;
+        for (auto vv : non_unique_domains) std::cout << *vv << std::endl; 
+        std::cout << std::endl;
+        std::cout << std::endl;
+    };
+};
+
+BOOST_FIXTURE_TEST_SUITE(CSPSolver_test_suite_ArcConsistency, 
+                         TestCSPSolver_ArcConsistency_Fixture, 
+                         * boost::unit_test::label("CSPSolver"));
+
+    // run arc consistency and return all possible answers
+    // std::vector<std::vector<GraphImplementation::VariableVertex>> arcConsistency(CSPGraph graph);
+    BOOST_AUTO_TEST_SUITE(arcConsistency, * boost::unit_test::label("arcConsistency"));
+
+        BOOST_AUTO_TEST_CASE(arc_consistency_no_solution) {
+
+            // setup: create a sudoku puzzle that has no solution
+            // square 1-1 should take the value 9, but we remove this when initializing
+
+            // first row
+            sudoku_graph.get_variable("Square 1-1")->removeFromDomain({9}); // <-removal
+            sudoku_graph.get_variable("Square 1-2")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 1-3")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-4")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-5")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 1-6")->removeFromDomain({1,2,3,4,5,6  ,8,9});
+            sudoku_graph.get_variable("Square 1-7")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 1-8")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-9")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            // second row
+            sudoku_graph.get_variable("Square 2-1")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 2-2")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 2-3")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-4")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 2-5")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-6")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-7")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-8")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 2-9")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            // third row
+            sudoku_graph.get_variable("Square 3-1")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-2")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-3")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 3-4")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-5")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 3-6")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 3-7")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 3-8")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 3-9")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            // fourth row
+            sudoku_graph.get_variable("Square 4-1")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-2")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 4-3")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 4-4")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 4-5")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 4-6")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 4-7")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-8")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-9")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            // fifth row
+            sudoku_graph.get_variable("Square 5-1")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-2")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-3")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-4")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 5-5")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-6")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 5-7")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 5-8")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 5-9")->removeFromDomain({1,2,3,4  ,6,7,8,9});
+            // sixth row
+            sudoku_graph.get_variable("Square 6-1")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 6-2")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 6-3")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 6-4")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 6-5")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-6")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-7")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 6-8")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-9")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            // seventh row
+            sudoku_graph.get_variable("Square 7-1")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 7-2")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-3")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-4")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-5")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 7-6")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 7-7")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 7-8")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-9")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            // eith row
+            sudoku_graph.get_variable("Square 8-1")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-2")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-3")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 8-4")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 8-5")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 8-6")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-7")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-8")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 8-9")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            // nineth row
+            sudoku_graph.get_variable("Square 9-1")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 9-2")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 9-3")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 9-4")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-5")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 9-6")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-7")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-8")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 9-9")->removeFromDomain({  2,3,4,5,6,7,8,9});
+
+            // If interested, we can visualize this
+            // std::cout << "PRINTING CSPGRAPH FROM SUDOKU" << std::endl;
+            // std::cout << sudoku_graph;
+
+            // call arcConsistency
+            auto answers = solver.arcConsistency(sudoku_graph);
+
+            //test: check that we have no answer - an empty solution vector
+            BOOST_TEST(answers.empty());
+        }
+        
+        BOOST_AUTO_TEST_CASE(real_use_case_easy_version) {
+
+            // setup: create a sudoku puzzle with the following initialization.
+            /*
+            x'8'2|1'6'7|5'3'4
+            5'x'3|9'2'4|1'6'8
+            1'4'x|3'5'8|9'7'2
+            _________________
+            3'6'8|5'x'9|2'4'7
+            2'1'4|7'3'x|8'9'5
+            7'5'9|x'4'2|6'1'3
+            _________________
+            8'3'1|4'9'5|x'2'6
+            4'2'x|6'7'1|3'8'9
+            6'x'7|2'8'3|4'5'1
+            */
+
+            // first row
+            sudoku_graph.get_variable("Square 1-1")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 1-2")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 1-3")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-4")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-5")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 1-6")->removeFromDomain({1,2,3,4,5,6  ,8,9});
+            sudoku_graph.get_variable("Square 1-7")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 1-8")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 1-9")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            // second row
+            sudoku_graph.get_variable("Square 2-1")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 2-2")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 2-3")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-4")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 2-5")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-6")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-7")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-8")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 2-9")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            // third row
+            sudoku_graph.get_variable("Square 3-1")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-2")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-3")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 3-4")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-5")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 3-6")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 3-7")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 3-8")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 3-9")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            // fourth row
+            sudoku_graph.get_variable("Square 4-1")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-2")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 4-3")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 4-4")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 4-5")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 4-6")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 4-7")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-8")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 4-9")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            // fifth row
+            sudoku_graph.get_variable("Square 5-1")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-2")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-3")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-4")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 5-5")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-6")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 5-7")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 5-8")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 5-9")->removeFromDomain({1,2,3,4  ,6,7,8,9});
+            // sixth row
+            sudoku_graph.get_variable("Square 6-1")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 6-2")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 6-3")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 6-4")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 6-5")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-6")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-7")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 6-8")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 6-9")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            // seventh row
+            sudoku_graph.get_variable("Square 7-1")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 7-2")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-3")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-4")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-5")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 7-6")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 7-7")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 7-8")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-9")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            // eith row
+            sudoku_graph.get_variable("Square 8-1")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-2")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-3")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 8-4")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 8-5")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 8-6")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-7")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-8")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 8-9")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            // nineth row
+            sudoku_graph.get_variable("Square 9-1")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 9-2")->removeFromDomain({});
+            sudoku_graph.get_variable("Square 9-3")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 9-4")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-5")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 9-6")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-7")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-8")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 9-9")->removeFromDomain({  2,3,4,5,6,7,8,9});
+
+            // If interested, we can visualize this
+            // std::cout << "PRINTING CSPGRAPH FROM SUDOKU" << std::endl;
+            // std::cout << sudoku_graph;
+
+            // call arcConsistency
+            auto answers = solver.arcConsistency(sudoku_graph);
+
+            //guard against empty vector
+            BOOST_REQUIRE_EQUAL(answers.size(), 1);
+            auto actual_answer = answers[0];
+
+            // test: test that we get the correct answer
+            /*
+            ANSWER:
+            9'8'2|1'6'7|5'3'4
+            5'7'3|9'2'4|1'6'8
+            1'4'6|3'5'8|9'7'2
+            _________________
+            3'6'8|5'1'9|2'4'7
+            2'1'4|7'3'6|8'9'5
+            7'5'9|8'4'2|6'1'3
+            _________________
+            8'3'1|4'9'5|7'2'6
+            4'2'5|6'7'1|3'8'9
+            6'9'7|2'8'3|4'5'1
+            */
+            std::vector<VariableVertex> expected_answer;
+            // first row
+            expected_answer.push_back(VariableVertex("Square 1-1", {9}));
+            expected_answer.push_back(VariableVertex("Square 1-2", {8}));
+            expected_answer.push_back(VariableVertex("Square 1-3", {2}));
+            expected_answer.push_back(VariableVertex("Square 1-4", {1}));
+            expected_answer.push_back(VariableVertex("Square 1-5", {6}));
+            expected_answer.push_back(VariableVertex("Square 1-6", {7}));
+            expected_answer.push_back(VariableVertex("Square 1-7", {5}));
+            expected_answer.push_back(VariableVertex("Square 1-8", {3}));
+            expected_answer.push_back(VariableVertex("Square 1-9", {4})); 
+            // second row
+            expected_answer.push_back(VariableVertex("Square 2-1", {5}));
+            expected_answer.push_back(VariableVertex("Square 2-2", {7}));
+            expected_answer.push_back(VariableVertex("Square 2-3", {3}));
+            expected_answer.push_back(VariableVertex("Square 2-4", {9}));
+            expected_answer.push_back(VariableVertex("Square 2-5", {2}));
+            expected_answer.push_back(VariableVertex("Square 2-6", {4}));
+            expected_answer.push_back(VariableVertex("Square 2-7", {1}));
+            expected_answer.push_back(VariableVertex("Square 2-8", {6}));
+            expected_answer.push_back(VariableVertex("Square 2-9", {8})); 
+            // third row
+            expected_answer.push_back(VariableVertex("Square 3-1", {1}));
+            expected_answer.push_back(VariableVertex("Square 3-2", {4}));
+            expected_answer.push_back(VariableVertex("Square 3-3", {6}));
+            expected_answer.push_back(VariableVertex("Square 3-4", {3}));
+            expected_answer.push_back(VariableVertex("Square 3-5", {5}));
+            expected_answer.push_back(VariableVertex("Square 3-6", {8}));
+            expected_answer.push_back(VariableVertex("Square 3-7", {9}));
+            expected_answer.push_back(VariableVertex("Square 3-8", {7}));
+            expected_answer.push_back(VariableVertex("Square 3-9", {2})); 
+            // fourth row
+            expected_answer.push_back(VariableVertex("Square 4-1", {3}));
+            expected_answer.push_back(VariableVertex("Square 4-2", {6}));
+            expected_answer.push_back(VariableVertex("Square 4-3", {8}));
+            expected_answer.push_back(VariableVertex("Square 4-4", {5}));
+            expected_answer.push_back(VariableVertex("Square 4-5", {1}));
+            expected_answer.push_back(VariableVertex("Square 4-6", {9}));
+            expected_answer.push_back(VariableVertex("Square 4-7", {2}));
+            expected_answer.push_back(VariableVertex("Square 4-8", {4}));
+            expected_answer.push_back(VariableVertex("Square 4-9", {7})); 
+            // fifth row
+            expected_answer.push_back(VariableVertex("Square 5-1", {2}));
+            expected_answer.push_back(VariableVertex("Square 5-2", {1}));
+            expected_answer.push_back(VariableVertex("Square 5-3", {4}));
+            expected_answer.push_back(VariableVertex("Square 5-4", {7}));
+            expected_answer.push_back(VariableVertex("Square 5-5", {3}));
+            expected_answer.push_back(VariableVertex("Square 5-6", {6}));
+            expected_answer.push_back(VariableVertex("Square 5-7", {8}));
+            expected_answer.push_back(VariableVertex("Square 5-8", {9}));
+            expected_answer.push_back(VariableVertex("Square 5-9", {5})); 
+            // sixth row
+            expected_answer.push_back(VariableVertex("Square 6-1", {7}));
+            expected_answer.push_back(VariableVertex("Square 6-2", {5}));
+            expected_answer.push_back(VariableVertex("Square 6-3", {9}));
+            expected_answer.push_back(VariableVertex("Square 6-4", {8}));
+            expected_answer.push_back(VariableVertex("Square 6-5", {4}));
+            expected_answer.push_back(VariableVertex("Square 6-6", {2}));
+            expected_answer.push_back(VariableVertex("Square 6-7", {6}));
+            expected_answer.push_back(VariableVertex("Square 6-8", {1}));
+            expected_answer.push_back(VariableVertex("Square 6-9", {3})); 
+            // seventh row
+            expected_answer.push_back(VariableVertex("Square 7-1", {8}));
+            expected_answer.push_back(VariableVertex("Square 7-2", {3}));
+            expected_answer.push_back(VariableVertex("Square 7-3", {1}));
+            expected_answer.push_back(VariableVertex("Square 7-4", {4}));
+            expected_answer.push_back(VariableVertex("Square 7-5", {9}));
+            expected_answer.push_back(VariableVertex("Square 7-6", {5}));
+            expected_answer.push_back(VariableVertex("Square 7-7", {7}));
+            expected_answer.push_back(VariableVertex("Square 7-8", {2}));
+            expected_answer.push_back(VariableVertex("Square 7-9", {6})); 
+            // eith row
+            expected_answer.push_back(VariableVertex("Square 8-1", {4}));
+            expected_answer.push_back(VariableVertex("Square 8-2", {2}));
+            expected_answer.push_back(VariableVertex("Square 8-3", {5}));
+            expected_answer.push_back(VariableVertex("Square 8-4", {6}));
+            expected_answer.push_back(VariableVertex("Square 8-5", {7}));
+            expected_answer.push_back(VariableVertex("Square 8-6", {1}));
+            expected_answer.push_back(VariableVertex("Square 8-7", {3}));
+            expected_answer.push_back(VariableVertex("Square 8-8", {8}));
+            expected_answer.push_back(VariableVertex("Square 8-9", {9})); 
+            // nineth row
+            expected_answer.push_back(VariableVertex("Square 9-1", {6}));
+            expected_answer.push_back(VariableVertex("Square 9-2", {9}));
+            expected_answer.push_back(VariableVertex("Square 9-3", {7}));
+            expected_answer.push_back(VariableVertex("Square 9-4", {2}));
+            expected_answer.push_back(VariableVertex("Square 9-5", {8}));
+            expected_answer.push_back(VariableVertex("Square 9-6", {3}));
+            expected_answer.push_back(VariableVertex("Square 9-7", {4}));
+            expected_answer.push_back(VariableVertex("Square 9-8", {5}));
+            expected_answer.push_back(VariableVertex("Square 9-9", {1}));
+            
+            // sort both the answer and expected variables based on order of variable name
+            auto first_variable_vertex_is_smaller_by_name = [] 
+            (VariableVertex vv1, VariableVertex vv2) 
+            {
+                return vv1.getName() < vv2.getName();
+            };
+            std::sort(expected_answer.begin(), expected_answer.end(), 
+                      first_variable_vertex_is_smaller_by_name);
+            std::sort(actual_answer.begin(), actual_answer.end(), 
+                      first_variable_vertex_is_smaller_by_name);
+            // finally compare the expected and actual answer
+            BOOST_CHECK_EQUAL_COLLECTIONS(expected_answer.begin(), expected_answer.end(),
+                                            actual_answer.begin(),   actual_answer.end());
+        }
+
+        BOOST_AUTO_TEST_CASE(real_use_case_hard_version) {
+
+            // setup: create a sudoku puzzle with the following initialization.
+            /*
+            x'x'x|x'6'7|5'3'x
+            5'x'x|9'2'x|1'x'x
+            x'4'x|x'x'x|x'7'x
+            _________________
+            x'x'x|x'x'9|2'x'x
+            x'1'4|7'3'x|x'x'x
+            7'x'9|x'x'x|x'1'x
+            _________________
+            x'3'x|x'x'x|x'2'6
+            4'2'5|x'7'1|x'8'9
+            6'x'7|2'8'3|x'5'1
+            */
+            
+            // first row
+            sudoku_graph.get_variable("Square 1-5")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 1-6")->removeFromDomain({1,2,3,4,5,6  ,8,9});
+            sudoku_graph.get_variable("Square 1-7")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 1-8")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            // second row
+            sudoku_graph.get_variable("Square 2-1")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 2-4")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 2-5")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 2-7")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            // third row
+            sudoku_graph.get_variable("Square 3-2")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 3-8")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            // fourth row
+            sudoku_graph.get_variable("Square 4-6")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 4-7")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            // fifth row
+            sudoku_graph.get_variable("Square 5-2")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-3")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 5-4")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 5-5")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            // sixth row
+            sudoku_graph.get_variable("Square 6-1")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 6-3")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            sudoku_graph.get_variable("Square 6-8")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            // seventh row
+            sudoku_graph.get_variable("Square 7-2")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-8")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 7-9")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            // eith row
+            sudoku_graph.get_variable("Square 8-1")->removeFromDomain({1,2,3,  5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-2")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-3")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 8-5")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 8-6")->removeFromDomain({  2,3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 8-8")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 8-9")->removeFromDomain({1,2,3,4,5,6,7,8  });
+            // nineth row
+            sudoku_graph.get_variable("Square 9-1")->removeFromDomain({1,2,3,4,5,  7,8,9});
+            sudoku_graph.get_variable("Square 9-3")->removeFromDomain({1,2,3,4,5,6,  8,9});
+            sudoku_graph.get_variable("Square 9-4")->removeFromDomain({1,  3,4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-5")->removeFromDomain({1,2,3,4,5,6,7,  9});
+            sudoku_graph.get_variable("Square 9-6")->removeFromDomain({1,2,  4,5,6,7,8,9});
+            sudoku_graph.get_variable("Square 9-8")->removeFromDomain({1,2,3,4,  6,7,8,9});
+            sudoku_graph.get_variable("Square 9-9")->removeFromDomain({  2,3,4,5,6,7,8,9});
+
+            // If interested, we can visualize this
+            // std::cout << "PRINTING CSPGRAPH FROM SUDOKU" << std::endl;
+            // std::cout << sudoku_graph;
+
+            // call arcConsistency
+            auto answers = solver.arcConsistency(sudoku_graph);
+
+            //guard against empty vector
+            BOOST_REQUIRE_EQUAL(answers.size(), 1);
+            auto actual_answer = answers[0];
+
+            // test: test that we get the correct answer
+            /*
+            ANSWER:
+            9'8'2|1'6'7|5'3'4
+            5'7'3|9'2'4|1'6'8
+            1'4'6|3'5'8|9'7'2
+            _________________
+            3'6'8|5'1'9|2'4'7
+            2'1'4|7'3'6|8'9'5
+            7'5'9|8'4'2|6'1'3
+            _________________
+            8'3'1|4'9'5|7'2'6
+            4'2'5|6'7'1|3'8'9
+            6'9'7|2'8'3|4'5'1
+            */
+            std::vector<VariableVertex> expected_answer;
+            // first row
+            expected_answer.push_back(VariableVertex("Square 1-1", {9}));
+            expected_answer.push_back(VariableVertex("Square 1-2", {8}));
+            expected_answer.push_back(VariableVertex("Square 1-3", {2}));
+            expected_answer.push_back(VariableVertex("Square 1-4", {1}));
+            expected_answer.push_back(VariableVertex("Square 1-5", {6}));
+            expected_answer.push_back(VariableVertex("Square 1-6", {7}));
+            expected_answer.push_back(VariableVertex("Square 1-7", {5}));
+            expected_answer.push_back(VariableVertex("Square 1-8", {3}));
+            expected_answer.push_back(VariableVertex("Square 1-9", {4})); 
+            // second row
+            expected_answer.push_back(VariableVertex("Square 2-1", {5}));
+            expected_answer.push_back(VariableVertex("Square 2-2", {7}));
+            expected_answer.push_back(VariableVertex("Square 2-3", {3}));
+            expected_answer.push_back(VariableVertex("Square 2-4", {9}));
+            expected_answer.push_back(VariableVertex("Square 2-5", {2}));
+            expected_answer.push_back(VariableVertex("Square 2-6", {4}));
+            expected_answer.push_back(VariableVertex("Square 2-7", {1}));
+            expected_answer.push_back(VariableVertex("Square 2-8", {6}));
+            expected_answer.push_back(VariableVertex("Square 2-9", {8})); 
+            // third row
+            expected_answer.push_back(VariableVertex("Square 3-1", {1}));
+            expected_answer.push_back(VariableVertex("Square 3-2", {4}));
+            expected_answer.push_back(VariableVertex("Square 3-3", {6}));
+            expected_answer.push_back(VariableVertex("Square 3-4", {3}));
+            expected_answer.push_back(VariableVertex("Square 3-5", {5}));
+            expected_answer.push_back(VariableVertex("Square 3-6", {8}));
+            expected_answer.push_back(VariableVertex("Square 3-7", {9}));
+            expected_answer.push_back(VariableVertex("Square 3-8", {7}));
+            expected_answer.push_back(VariableVertex("Square 3-9", {2})); 
+            // fourth row
+            expected_answer.push_back(VariableVertex("Square 4-1", {3}));
+            expected_answer.push_back(VariableVertex("Square 4-2", {6}));
+            expected_answer.push_back(VariableVertex("Square 4-3", {8}));
+            expected_answer.push_back(VariableVertex("Square 4-4", {5}));
+            expected_answer.push_back(VariableVertex("Square 4-5", {1}));
+            expected_answer.push_back(VariableVertex("Square 4-6", {9}));
+            expected_answer.push_back(VariableVertex("Square 4-7", {2}));
+            expected_answer.push_back(VariableVertex("Square 4-8", {4}));
+            expected_answer.push_back(VariableVertex("Square 4-9", {7})); 
+            // fifth row
+            expected_answer.push_back(VariableVertex("Square 5-1", {2}));
+            expected_answer.push_back(VariableVertex("Square 5-2", {1}));
+            expected_answer.push_back(VariableVertex("Square 5-3", {4}));
+            expected_answer.push_back(VariableVertex("Square 5-4", {7}));
+            expected_answer.push_back(VariableVertex("Square 5-5", {3}));
+            expected_answer.push_back(VariableVertex("Square 5-6", {6}));
+            expected_answer.push_back(VariableVertex("Square 5-7", {8}));
+            expected_answer.push_back(VariableVertex("Square 5-8", {9}));
+            expected_answer.push_back(VariableVertex("Square 5-9", {5})); 
+            // sixth row
+            expected_answer.push_back(VariableVertex("Square 6-1", {7}));
+            expected_answer.push_back(VariableVertex("Square 6-2", {5}));
+            expected_answer.push_back(VariableVertex("Square 6-3", {9}));
+            expected_answer.push_back(VariableVertex("Square 6-4", {8}));
+            expected_answer.push_back(VariableVertex("Square 6-5", {4}));
+            expected_answer.push_back(VariableVertex("Square 6-6", {2}));
+            expected_answer.push_back(VariableVertex("Square 6-7", {6}));
+            expected_answer.push_back(VariableVertex("Square 6-8", {1}));
+            expected_answer.push_back(VariableVertex("Square 6-9", {3})); 
+            // seventh row
+            expected_answer.push_back(VariableVertex("Square 7-1", {8}));
+            expected_answer.push_back(VariableVertex("Square 7-2", {3}));
+            expected_answer.push_back(VariableVertex("Square 7-3", {1}));
+            expected_answer.push_back(VariableVertex("Square 7-4", {4}));
+            expected_answer.push_back(VariableVertex("Square 7-5", {9}));
+            expected_answer.push_back(VariableVertex("Square 7-6", {5}));
+            expected_answer.push_back(VariableVertex("Square 7-7", {7}));
+            expected_answer.push_back(VariableVertex("Square 7-8", {2}));
+            expected_answer.push_back(VariableVertex("Square 7-9", {6})); 
+            // eith row
+            expected_answer.push_back(VariableVertex("Square 8-1", {4}));
+            expected_answer.push_back(VariableVertex("Square 8-2", {2}));
+            expected_answer.push_back(VariableVertex("Square 8-3", {5}));
+            expected_answer.push_back(VariableVertex("Square 8-4", {6}));
+            expected_answer.push_back(VariableVertex("Square 8-5", {7}));
+            expected_answer.push_back(VariableVertex("Square 8-6", {1}));
+            expected_answer.push_back(VariableVertex("Square 8-7", {3}));
+            expected_answer.push_back(VariableVertex("Square 8-8", {8}));
+            expected_answer.push_back(VariableVertex("Square 8-9", {9})); 
+            // nineth row
+            expected_answer.push_back(VariableVertex("Square 9-1", {6}));
+            expected_answer.push_back(VariableVertex("Square 9-2", {9}));
+            expected_answer.push_back(VariableVertex("Square 9-3", {7}));
+            expected_answer.push_back(VariableVertex("Square 9-4", {2}));
+            expected_answer.push_back(VariableVertex("Square 9-5", {8}));
+            expected_answer.push_back(VariableVertex("Square 9-6", {3}));
+            expected_answer.push_back(VariableVertex("Square 9-7", {4}));
+            expected_answer.push_back(VariableVertex("Square 9-8", {5}));
+            expected_answer.push_back(VariableVertex("Square 9-9", {1}));
+            
+            // sort both the answer and expected variables based on order of variable name
+            auto first_variable_vertex_is_smaller_by_name = [] 
+            (VariableVertex vv1, VariableVertex vv2) 
+            {
+                return vv1.getName() < vv2.getName();
+            };
+            std::sort(expected_answer.begin(), expected_answer.end(), 
+                      first_variable_vertex_is_smaller_by_name);
+            std::sort(actual_answer.begin(), actual_answer.end(), 
+                      first_variable_vertex_is_smaller_by_name);
+            // finally compare the expected and actual answer
+            BOOST_CHECK_EQUAL_COLLECTIONS(expected_answer.begin(), expected_answer.end(),
+                                            actual_answer.begin(),   actual_answer.end());
         }
 
     BOOST_AUTO_TEST_SUITE_END();

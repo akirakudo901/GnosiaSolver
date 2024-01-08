@@ -24,88 +24,104 @@ struct TestCSPGraph_Fixture {
     };
     
     ~TestCSPGraph_Fixture() {};
+
+    // function that compares two graphs
+    // based on limited info (complete comparison not possible due to predicates being templates)
+    bool compare_two_cspg (CSPSolverImplementation::CSPGraph graph1,
+                           CSPSolverImplementation::CSPGraph graph2)
+    {
+        // given we can't reliably compare constraint predicates, check: 
+        // 1) both CSPGraph hold the same constraints by names
+        std::vector<std::string> graph1_constraints = graph1.get_all_constraint_names();
+        std::vector<std::string> graph2_constraints = graph2.get_all_constraint_names();
+        std::sort(graph1_constraints.begin(), graph1_constraints.end());
+        std::sort(graph2_constraints.begin(), graph2_constraints.end());
+        if (graph1_constraints != graph2_constraints) return false;
+        
+        // 2) both CSPGraph hold the same variables checkable with ==
+        if (graph1.get_all_variable_names().size() != graph2.get_all_variable_names().size()) 
+            return false;
+        for (std::string vv_name : graph2.get_all_variable_names()) {
+            // check if vv_name in graph1 is a nullptr
+            // if it is, vv isn't contained in graph1
+            if (graph1.get_variable(vv_name) == nullptr) 
+                return false;
+            
+            VariableVertex vv_graph1 = *graph1.get_variable(vv_name);
+            VariableVertex vv_graph2 = *graph2.get_variable(vv_name);
+            if (vv_graph1 != vv_graph2) return false;
+        }
+        // 3) both CSPGraph have the same edges - checkable by adjacency
+        for (std::string cv_name : graph2.get_all_constraint_names()) {
+            for (std::string vv_name : graph2.get_all_variable_names()) {
+                if (graph2.adjacent(cv_name, vv_name) != graph1.adjacent(cv_name, vv_name))
+                    return false;
+            }
+        }
+        // if everything else is ok, return true
+        return true;
+    };
 };
 
 BOOST_FIXTURE_TEST_SUITE(CSPGraph_test_suite, TestCSPGraph_Fixture, * boost::unit_test::label("CSPGraph"));
 
     // test the copy constructor - preserving link between cv / vv maps and adjacency list
     // CSPSolverImplementation::CSPGraph::CSPGraph(CSPGraph& other)
-    BOOST_AUTO_TEST_SUITE(copy_constructor);
+    BOOST_AUTO_TEST_SUITE(copy_constructor, * boost::unit_test::label("copy_constructor"));
 
         BOOST_AUTO_TEST_CASE(check_adjacency_is_preserved) {
             // setup: setup graph to some extent
+            // add some vertices
+            g.add_constraint("cv1", ConstraintVertex::exactlyN(0, 1));
+            g.add_constraint("cv2", ConstraintVertex::greaterOrEqualToN(3, 2));
+            g.add_constraint("cv3", ConstraintVertex::lesserOrEqualToN(1, 3));
+
+            g.add_variable("vv1", {0, 1, 2});
+            g.add_variable("vv2", {3, 4});
+            g.add_variable("vv3", {5});
+
             // we add all possible edges
             for (auto vv_name : g.get_all_variable_names()) {
                 for (auto cv_name : g.get_all_constraint_names()) {
                     g.add_edge(vv_name, cv_name);
                 }
             }
-            // then remove some edges randomly
-            g.remove_edge("Square 1", "OnlyOne3");
-            g.remove_edge("Square 5", "OnlyOne7");
-            g.remove_edge("Square 8", "OnlyOne1");
             
             // test: check that using a copy constructor works correctly
             CSPSolverImplementation::CSPGraph copied_g = g;
+            
+            // copied graph preserves adjacency between vertices
+            BOOST_TEST(compare_two_cspg(copied_g, g));
+        }
 
-            auto compare_two_cspg = [] (CSPSolverImplementation::CSPGraph graph1,
-                                        CSPSolverImplementation::CSPGraph graph2)
-            {
-                // given we can't reliably compare constraint predicates, check: 
-                // 1) both CSPGraph hold the same constraints by names
-                std::vector<std::string> graph1_constraints = graph1.get_all_constraint_names();
-                std::vector<std::string> graph2_constraints = graph2.get_all_constraint_names();
-                std::sort(graph1_constraints.begin(), graph1_constraints.end());
-                std::sort(graph2_constraints.begin(), graph2_constraints.end());
-                if (graph1_constraints != graph2_constraints) 
-                {
-                    std::cout << "Failed same name constraints." << std::endl;
-                    return false;
-                }
-                
-                // 2) both CSPGraph hold the same variables checkable with ==
-                if (graph1.get_all_variable_names().size() != graph2.get_all_variable_names().size()) 
-                {
-                    std::cout << "Failed same number of variable." << std::endl;
-                    return false;
-                }
-                for (std::string vv_name : graph2.get_all_variable_names()) {
-                    // check if vv_name in graph1 is a nullptr
-                    // if it is, vv isn't contained in graph1
-                    if (graph1.get_variable(vv_name) == nullptr) 
-                    {
-                        std::cout << "Failed get variable nullptr." << std::endl;
-                        return false;
-                    }
-                    
-                    VariableVertex vv_graph1 = *graph1.get_variable(vv_name);
-                    VariableVertex vv_graph2 = *graph2.get_variable(vv_name);
-                    if (vv_graph1 != vv_graph2) 
-                    {
-                        std::cout << "Failed variable comparsion between:"; 
-                        std::cout << vv_graph1.getName() << " " << vv_graph2.getName() << std::endl;
-                        return false;
-                    }
-                }
-                // 3) both CSPGraph have the same edges - checkable by adjacency
-                for (std::string cv_name : graph2.get_all_constraint_names()) {
-                    for (std::string vv_name : graph2.get_all_variable_names()) {
-                        if (graph2.adjacent(cv_name, vv_name) != graph1.adjacent(cv_name, vv_name))
-                        {
-                            std::cout << "Failed adjacency check between :";
-                            std::cout << cv_name << " " << vv_name << ":"; 
-                            std::cout << "graph1 -> " << graph1.adjacent(cv_name, vv_name);
-                            std::cout << "graph2 -> " << graph2.adjacent(cv_name, vv_name) << std::endl;
-                            return false;
-                        }
-                        std::cout <<"successful adjacent: " << cv_name << " " << vv_name << std::endl;
-                    }
-                }
-                // if everything else is ok, return true
-                return true;
-            };
+        BOOST_AUTO_TEST_CASE(check_they_hold_different_memories) {
+            // setup: setup graph to some extent
+            // add some vertices
+            g.add_constraint("cv1", ConstraintVertex::exactlyN(0, 1));
+            g.add_constraint("cv2", ConstraintVertex::greaterOrEqualToN(3, 2));
+            g.add_constraint("cv3", ConstraintVertex::lesserOrEqualToN(1, 3));
 
-            BOOST_TEST(compare_two_cspg(g, copied_g));
+            g.add_variable("vv1", {0, 1, 2});
+            g.add_variable("vv2", {3, 4});
+            g.add_variable("vv3", {5});
+
+            // we add all possible edges
+            for (auto vv_name : g.get_all_variable_names()) {
+                for (auto cv_name : g.get_all_constraint_names()) {
+                    g.add_edge(vv_name, cv_name);
+                }
+            }
+
+            // test: check that using a copy constructor works correctly
+            CSPSolverImplementation::CSPGraph copied_g = g;
+
+            // we then alter copied_g
+            // remove some edges
+            copied_g.remove_edge("vv1", "cv1");
+            copied_g.remove_edge("vv2", "cv3");
+            
+            // we then show the two graphs are no longer synced in terms of content
+            BOOST_TEST(!compare_two_cspg(copied_g, g));            
         }
 
     BOOST_AUTO_TEST_SUITE_END();

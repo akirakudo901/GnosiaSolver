@@ -21,20 +21,23 @@ CSPSolverImplementation::CSPGraph::CSPGraph()
 }
 
 CSPSolverImplementation::CSPGraph::CSPGraph(const CSPGraph& other)
-{
+{ 
     // copy vv_map & cv_map, hence keeping data for both cvs and vvs
-    this->cv_map = other.cv_map;
     this->vv_map = other.vv_map;
-    // this breaks the link between maps and the adjacency list, hence:
-    // for each vv in vv_map within other, get their adjacency list
-    for (auto element : other.vv_map)
+    this->cv_map = other.cv_map;
+    // this breaks the link between maps and the adjacency list, hence
+    // we call this->Graph::add_vertex on everything to add their entry in adjList
+    for (auto& vv_pair : this->vv_map) this->add_vertex(vv_pair.second);
+    for (auto& cv_pair : this->cv_map) this->add_vertex(cv_pair.second);
+
+    // for each vv-adjacencyList pair in other.adjList
+    for (auto vv_adjacency_list_pair : other.adjList)
     {
-        auto element_adjacency_list = other.adjList.at(&element.second);
-        // go through the list, which returns their adjacent cvs
-        for (auto cv : element_adjacency_list)
+        // go through the list, getting adjacent cvs to first of vv_adjacency_list_pair
+        for (auto cv : vv_adjacency_list_pair.second)
         {
             // add corresponding edges to the graph
-            this->add_edge(element.second.getName(), cv->getName());
+            this->add_edge(vv_adjacency_list_pair.first->getName(), cv->getName());
         }
         // checking for adjacency on all variables is enough, as 
         // constraints are only adjacent to variables in a CSPGraph

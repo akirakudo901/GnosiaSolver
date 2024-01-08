@@ -19,6 +19,7 @@
 
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #include "src/cspSolver/CSPGraph.h"
@@ -40,22 +41,27 @@ namespace CSPSolverImplementation
     {
         private:
             CSPGraph cspGraph;
+            
             // befriend TestBefriender to allow testing of private functions
             friend struct _unit_test_befriender::TestBefriender;
             
+            // trampoline for starting a call to arc consistency
+            // enables recursive calls after domain splitting
+            std::vector<std::vector<GraphImplementation::VariableVertex>>
+            arcConsistency_trampoline(Frontier& frontier, CSPGraph& graph);
             // populates the given frontier with the set of all arcs to be checked given a CSPGraph
             // used at the beginning when running arc consistency
-            void getAllToDoArcs(Frontier& frontier, const CSPGraph& graph);
+            void getAllToDoArcs(Frontier& frontier, CSPGraph& graph);
             // populates the given frontier with the set of all arcs to be checked, given 
             // we just checked a certain ARC and reduced the domain of the main variable
-            void getAllCheckAgainArcs(Frontier& frontier, const CSPGraph& graph, const ARC& arc);
+            void getAllCheckAgainArcs(Frontier& frontier, CSPGraph& graph, const ARC& arc);
             // run one arc consistency step on CSPGraph and arcs in Frontier;
             // using differing Frontiers might change the runtime & efficiency of the process
             void singleArcConsistencyStep(CSPGraph& graph, Frontier& frontier);
             // checks the existence of a unique solution, returned as vector of Variables with unique domain
             // also return a boolean of "true" if we have a unique / no answer, false if indeterminate
             std::tuple<std::vector<GraphImplementation::VariableVertex>, bool> 
-            checkAnswer(const CSPGraph& graph);
+            checkAnswer(CSPGraph& graph);
             // splits domain of specific variable and returns all generated graphs
             std::vector<CSPGraph> splitDomain(const CSPGraph& graph, GraphImplementation::VariableVertex* vv);
 
