@@ -31,6 +31,7 @@ namespace CSPSolverImplementation
         // mostly simple getter
         size_t size() const { return (this->unaryFrontier.size() + this->nonUnaryFrontier.size()); }
         bool empty() const { return (this->unaryFrontier.empty() && this->nonUnaryFrontier.empty()); }
+        FrontierMode getMode() const { return this->mode; }
     
     private:
         FrontierMode mode;

@@ -67,6 +67,14 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
     // check the copy constructor
     BOOST_AUTO_TEST_SUITE(copy_constructor);
 
+        BOOST_AUTO_TEST_CASE(preserves_mode) {
+            // setup: create another frontier by copy
+            CSPSolverImplementation::Frontier new_f = frontier;
+            
+            // test: check the new frontier preserves mode
+            BOOST_CHECK_EQUAL(frontier.getMode(), new_f.getMode());
+        };
+
         BOOST_AUTO_TEST_CASE(preserves_arcs) {
             // presetup: add some arcs
             frontier.push(unary2);
@@ -132,7 +140,7 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
 
         BOOST_AUTO_TEST_CASE(push_1_non_unary) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.empty());
             // setup: push one non-unary arc
             frontier.push(non_unary1); 
             // test: test the pushed one is in now
@@ -142,7 +150,7 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
 
         BOOST_AUTO_TEST_CASE(push_2_unary_2_non_unary) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.empty());
             // setup: push two unary & two non-unary arcs
             frontier.push(unary1); 
             frontier.push(unary2); 
@@ -158,7 +166,7 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
 
         BOOST_AUTO_TEST_CASE(push_2_unary_2_non_unary_with_duplicate) {
             // preconditions: check nothing is in the frontier
-            BOOST_TEST_REQUIRE(frontier.empty() == true);
+            BOOST_TEST_REQUIRE(frontier.empty());
             // setup: push two unary & two non-unary arcs
             frontier.push(unary1); 
             frontier.push(unary2); 
@@ -174,6 +182,33 @@ BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::uni
             frontier.push(non_unary2); 
             // test the pushed ones did not duplicate, but are in now
             BOOST_CHECK_EQUAL(frontier.size(), 4);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), unary2);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);
+            BOOST_CHECK_EQUAL(frontier.pop(), non_unary2);
+        };
+
+        BOOST_AUTO_TEST_CASE(push_2_unary_2_non_unary_after_push_and_pop) {
+            // preconditions: check nothing is in the frontier
+            BOOST_TEST_REQUIRE(frontier.empty());
+            // setup: push two unary & two non-unary arcs
+            frontier.push(unary1); 
+            frontier.push(unary2); 
+            frontier.push(non_unary1); 
+            frontier.push(non_unary2); 
+            // test there are four entries in the frontier
+            BOOST_CHECK_EQUAL(frontier.size(), 4);
+            // then pop them
+            frontier.pop(); frontier.pop(); frontier.pop(); frontier.pop();
+            BOOST_TEST(frontier.empty());
+
+            // test: then push the same arcs one more time
+            frontier.push(unary1); 
+            frontier.push(unary2); 
+            frontier.push(non_unary1); 
+            frontier.push(non_unary2);
+            // test the pushed ones are in there
+            BOOST_REQUIRE_EQUAL(frontier.size(), 4);
             BOOST_CHECK_EQUAL(frontier.pop(), unary1);
             BOOST_CHECK_EQUAL(frontier.pop(), unary2);
             BOOST_CHECK_EQUAL(frontier.pop(), non_unary1);

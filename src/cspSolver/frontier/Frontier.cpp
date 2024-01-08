@@ -45,6 +45,7 @@ void CSPSolverImplementation::Frontier::push(CSPSolverImplementation::ARC arc)
     switch (this->mode) {
         // if mode is QueueMode
         case QueueMode:
+        {
             // check the size of variable list in arc
             // if it is none, we have a unary constraint
             if (arc.other_var_list.empty())
@@ -53,6 +54,7 @@ void CSPSolverImplementation::Frontier::push(CSPSolverImplementation::ARC arc)
             else 
                 nonUnaryFrontier.push(arc);
             break;
+        }
     }
     // might implement PriorityQueueMode as well
 };
@@ -65,6 +67,7 @@ CSPSolverImplementation::ARC CSPSolverImplementation::Frontier::pop()
     switch (this->mode) {
         // if mode is QueueMode
         case QueueMode:
+        {
             // if we still have unary constraints, return that first
             if (!unaryFrontier.empty()) {
                 returned = unaryFrontier.front();
@@ -74,12 +77,16 @@ CSPSolverImplementation::ARC CSPSolverImplementation::Frontier::pop()
                 returned = nonUnaryFrontier.front();
                 nonUnaryFrontier.pop();
             }
+            break;
+        }
         default:
             return returned;
     }
 
     // finally track the fact that we just removed 'returned' from arc_is_in_frontier
-    arc_is_in_frontier.emplace(returned.generate_unique_string(), false);
+    std::string removed_arc_name = returned.generate_unique_string();
+    arc_is_in_frontier.erase(removed_arc_name);
+    arc_is_in_frontier.emplace(removed_arc_name, false);
     return returned;
     // might implement PriorityQueueMode as well
 };
