@@ -32,6 +32,8 @@ namespace CSPSolverImplementation
 
         std::string generate_unique_string()
         {
+            // guard against nullptrs
+            if (main_var == nullptr) return "nullptr";
             std::string returned = main_var->getName() + "-";
             std::set<std::string> names;
             for (GraphImplementation::VariableVertex* vv : other_var_list)
@@ -42,8 +44,9 @@ namespace CSPSolverImplementation
             {
                 returned += name + "-";
             }
-            
-            return returned += constraint->getName();
+            // guard against nullptr again
+            if (constraint == nullptr) return returned += "nullptr";
+            else return returned += constraint->getName();
         };
 
         // overloading == so that we can use those in Boost tests
