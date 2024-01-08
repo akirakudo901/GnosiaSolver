@@ -64,6 +64,58 @@ struct TestFrontier_Fixture
 
 BOOST_FIXTURE_TEST_SUITE(Frontier_test_suite, TestFrontier_Fixture, * boost::unit_test::label("Frontier"));
     
+    // check the copy constructor
+    BOOST_AUTO_TEST_SUITE(copy_constructor);
+
+        BOOST_AUTO_TEST_CASE(preserves_arcs) {
+            // presetup: add some arcs
+            frontier.push(unary2);
+            frontier.push(non_unary2);
+            frontier.push(unary1);
+            frontier.push(non_unary1);
+            
+            // preconditions: check frontier is of size 4
+            BOOST_TEST_REQUIRE(frontier.size() == 4);
+
+            // setup: then create another frontier by copy
+            CSPSolverImplementation::Frontier new_f = frontier;
+            
+            // test: check the new frontier preserves arcs and their order
+            BOOST_CHECK_EQUAL(new_f.size(), 4);
+            BOOST_CHECK_EQUAL(new_f.pop(), unary2);
+            BOOST_CHECK_EQUAL(new_f.pop(), unary1);
+            BOOST_CHECK_EQUAL(new_f.pop(), non_unary2);
+            BOOST_CHECK_EQUAL(new_f.pop(), non_unary1);
+        };
+
+        BOOST_AUTO_TEST_CASE(preserves_which_arc_is_in_frontier) {
+            // presetup: add some arcs
+            frontier.push(unary2);
+            frontier.push(non_unary2);
+            frontier.push(unary1);
+            frontier.push(non_unary1);
+            
+            // preconditions: check frontier is of size 4, and create a copy
+            BOOST_TEST_REQUIRE(frontier.size() == 4);
+            CSPSolverImplementation::Frontier new_f = frontier;
+            BOOST_TEST_REQUIRE(new_f.size() == 4);
+
+            // setup: then add identical arcs to the new one
+            new_f.push(unary1);
+            new_f.push(unary2);
+            new_f.push(non_unary1);
+            new_f.push(non_unary2);
+
+            // test: check the new frontier didn't add the four later arcs
+            BOOST_CHECK_EQUAL(new_f.size(), 4);
+            BOOST_CHECK_EQUAL(new_f.pop(), unary2);
+            BOOST_CHECK_EQUAL(new_f.pop(), unary1);
+            BOOST_CHECK_EQUAL(new_f.pop(), non_unary2);
+            BOOST_CHECK_EQUAL(new_f.pop(), non_unary1);
+        };
+
+    BOOST_AUTO_TEST_SUITE_END();
+
     // push an arc that is an ARC struct to frontier
     // void push(CSPSolverImplementation::ARC arc);
     BOOST_AUTO_TEST_SUITE(push);

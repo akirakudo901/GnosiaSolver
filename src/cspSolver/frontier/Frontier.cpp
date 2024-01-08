@@ -28,12 +28,16 @@ void CSPSolverImplementation::Frontier::push(CSPSolverImplementation::ARC arc)
     std::string arc_name = arc.generate_unique_string();
     // if arc_name is not in map, add a 'true' entry to map 
     if (arc_is_in_frontier.find(arc_name) == arc_is_in_frontier.end())
+    {
         arc_is_in_frontier.insert({arc_name, true});
+    }
     // if arc_name is in there and indicates false (arc not in frontier),
     // set existence to true
     else if (!arc_is_in_frontier.at(arc_name))
-        arc_is_in_frontier.insert({arc_name, true});
+    {
+        arc_is_in_frontier.emplace(arc_name, true);
     // otherwise arc is already in map - skip
+    }
     else return;
 
 
@@ -75,7 +79,7 @@ CSPSolverImplementation::ARC CSPSolverImplementation::Frontier::pop()
     }
 
     // finally track the fact that we just removed 'returned' from arc_is_in_frontier
-    arc_is_in_frontier[returned.generate_unique_string()] = false;
+    arc_is_in_frontier.emplace(returned.generate_unique_string(), false);
     return returned;
     // might implement PriorityQueueMode as well
 };
