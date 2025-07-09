@@ -37,6 +37,7 @@ Model the CSP using:
       > (Crew Member, Doctor, Engineer, Guardian Angel, Guard Duty)
       > (AC Follower, Gnosia)
       > (Bug) 
+       <- In other words, we cannot have two people from the same group.
 - Every time we add new info, we rule out impossible domain values and perform arc consistency
 
 

@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <iostream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -24,14 +25,28 @@ namespace GraphImplementation
             // instead of us taking pred apart, we expect you to specify info of what
             // pred does in description in case you want descriptive info when printing
             std::string description;
+            std::set<int> canBeMainVariable;
 
         public:
             ConstraintVertex(std::string, 
                              std::function<bool(int, std::vector<VariableVertex*>)> pred,
                              std::string description="This is the default description.");
+            ConstraintVertex(std::string, 
+                             std::function<bool(int, std::vector<VariableVertex*>)> pred,
+                             std::set<int> canBeMainVar,
+                             std::string description="This is the default description."); 
             ~ConstraintVertex();
             // checks whether the constraint is met for mainVar given varList.
             bool constraintIsMet(int mainVal, std::vector<VariableVertex*> varList) const;
+            // add new domain to what can be the main variable for this constraint vertex
+            // functionality for directional edges
+            void allowMainVariable(int newDomain);
+            void allowMainVariable(std::set<int> newDomains);
+            // remove domain to what can be the main variable for this constraint vertex
+            // functionality for directional edges
+            void removeMainVariable(int removed);
+            void removeMainVariable(std::set<int> removed);
+
 
             // getters
             using Vertex::getName;
@@ -43,6 +58,7 @@ namespace GraphImplementation
             static std::function<bool(int, std::vector<VariableVertex*>)> greaterOrEqualToN(int checkedDomain, int n);
             // checks if given domains allow the existence of exactly n of the checkedDomain value
             static std::function<bool(int, std::vector<VariableVertex*>)> exactlyN(int checkedDomain, int n);
+            static std::function<bool(int, std::vector<VariableVertex*>)> exactlyN(int checkedDomain, std::set<int> ns);
 
             // overwrite << operator
             friend std::ostream& operator<<(std::ostream& os, const ConstraintVertex& cv) {

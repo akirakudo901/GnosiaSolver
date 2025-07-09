@@ -19,6 +19,17 @@ GraphImplementation::ConstraintVertex::ConstraintVertex(
     
 };
 
+
+GraphImplementation::ConstraintVertex::ConstraintVertex(
+    std::string name, 
+    function<bool(int, vector<VariableVertex*>)> pred,
+    std::set<int> canBeMainVar,
+    std::string description)
+    : Vertex(name), pred(pred), description(description), canBeMainVariable(canBeMainVar)
+{
+    
+};
+
 GraphImplementation::ConstraintVertex::~ConstraintVertex()
 {
 
@@ -28,6 +39,30 @@ GraphImplementation::ConstraintVertex::~ConstraintVertex()
 bool GraphImplementation::ConstraintVertex::constraintIsMet(int mainVal, vector<VariableVertex*> varList) const
 {
     return this->pred(mainVal, varList);
+};
+
+// add new domain to what can be the main variable for this constraint vertex
+// functionality for directional edges
+void GraphImplementation::ConstraintVertex::allowMainVariable(int newDomain)
+{
+    this->canBeMainVariable.insert(newDomain);
+};
+
+void GraphImplementation::ConstraintVertex::allowMainVariable(std::set<int> newDomains)
+{
+    for (int d : newDomains) this->canBeMainVariable.insert(d);
+};
+
+// remove domain to what can be the main variable for this constraint vertex
+// functionality for directional edges
+void GraphImplementation::ConstraintVertex::removeMainVariable(int removed)
+{
+    this->canBeMainVariable.erase(removed);
+};
+
+void GraphImplementation::ConstraintVertex::removeMainVariable(std::set<int> removed)
+{
+    for (int d : removed) this->canBeMainVariable.erase(d);
 };
 
 // checks if given domains allow the existence of n or less of the checkedDomain value
@@ -120,6 +155,50 @@ GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, int n)
         // finally return if we could have at least n checkedDomains
         return (hasToBeCheckedDomain <= n && canBeCheckedDomain >= n);
 
+        return false;
+    };
+
+};
+
+// checks if given domains allow the existence of the checkedDomain value exactly
+// for any number provided in ns 
+function<bool(int, vector<VariableVertex*>)> 
+GraphImplementation::ConstraintVertex::exactlyN(int checkedDomain, std::set<int> ns)
+{
+    return [=] (int mainVal, vector<VariableVertex*> varList) {
+        // count both the number of variables which value 'can be' / 'have to be' checkedDomain.
+        int canBeCheckedDomain = 0;
+        int hasToBeCheckedDomain = 0;
+
+        // if mainVal is checkedDomain, increment both canBeCheckedDomain and hasToBeCheckedDomain
+        if (mainVal == checkedDomain) {
+            canBeCheckedDomain++;
+            hasToBeCheckedDomain++;
+        }
+
+        // otherwise: 
+        // - for every variable which domain includes checkedDomain, increment canBeCheckedDomain
+        // - for every variable which domain is limited to checkedDomain, increment hasToBeCheckedDomain
+        for (auto var : varList) {
+            auto vDomain = var->getDomain();
+            // includes checkedDomain
+            if (vDomain.find(checkedDomain) != vDomain.end()) {
+                canBeCheckedDomain++;
+                // on top of that, also has domain limited to be checkedDomain
+                if (vDomain.size() == 1) hasToBeCheckedDomain++;
+            }
+
+            // after increment, if we have to have checkedDomains more than the max 
+            // of ns (= hasToBeCheckedDomain > max(n)), we cannot have exactly N for any N in ns
+            //  Also, set.rbegin returns pointer to max of an ordered set
+            if (hasToBeCheckedDomain > *ns.rbegin()) return false; 
+        }
+        // finally, for each value N in ns, check if at least one value N is possible,
+        // that is (hasToBeCheckedDomain <= N & canbeCheckedDomain >= N)
+        for (int N : ns)
+        {
+            if (hasToBeCheckedDomain <= N && canBeCheckedDomain >= N) return true;
+        }
         return false;
     };
 
